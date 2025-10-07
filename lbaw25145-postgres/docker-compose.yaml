@@ -1,32 +1,35 @@
+# ------------------------------------------------------------------------------
+# LBAW docker-compose configuration
+#
+# Defines local development services:
+#   - postgres  (database)
+#   - pgadmin   (web UI for managing PostgreSQL)
+#
+# This file is meant for local development only. 
+# ------------------------------------------------------------------------------
+
 services:
+
   postgres:
     image: postgres:16
-    container_name: postgres
-    restart: unless-stopped
+    restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./sql:/docker-entrypoint-initdb.d
 
   pgadmin:
     image: dpage/pgadmin4:9
-    container_name: pgadmin
-    restart: unless-stopped
+    restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: lbaw@example.org
       PGADMIN_DEFAULT_PASSWORD: password
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
+
+      # Disable user passwords. Only to be used in local single-user model.
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
     ports:
       - "4321:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - postgres
-
-volumes:
-  postgres_data:
-  pgadmin_data:
