@@ -66,4 +66,28 @@ class User extends Authenticatable
     {
         return $this->hasMany(Card::class);
     }
+
+    /**
+     * Get the reservations made by this user.
+     */
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class, 'user_id');
+    }
+
+    /**
+     * Get the restaurants owned by this user (if owner).
+     */
+    public function restaurants(): HasMany
+    {
+        return $this->hasMany(Restaurant::class, 'owner_id');
+    }
+
+    /**
+     * Get all reviews written by this user.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'user_id');
+    }
 }
