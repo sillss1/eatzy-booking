@@ -10,6 +10,21 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
+    /**
+     * Check if the user is an owner.
+     */
+    public function isOwner(): bool
+    {
+        return \DB::table('owner')->where('id', $this->id)->exists();
+    }
+
+    /**
+     * Check if the user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return \DB::table('administrator')->where('id', $this->id)->exists();
+    }
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -58,14 +73,9 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Get the cards owned by this user.
-     *
-     * Defines a one-to-many relationship:
-     * a user can have multiple cards.
-     */
-    // public function cards(): HasMany
-    // {
-    //     return $this->hasMany(Card::class);
-    // }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
 }
