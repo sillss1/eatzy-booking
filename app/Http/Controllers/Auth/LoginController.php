@@ -47,7 +47,7 @@ class LoginController extends Controller
             $request->session()->regenerate();
  
             // Redirect the user to their intended destination (default: /cards).
-            return redirect()->intended(route('cards.index'));
+            return redirect()->intended(route('restaurants.index'));
         }
  
         // Authentication failed: return back with an error message.

@@ -57,7 +57,7 @@ class RegisterController extends Controller
         $request->session()->regenerate();
 
         // Redirect to cards page with a success message.
-        return redirect()->route('cards.index')
+        return redirect()->route('restaurants.index')
             ->withSuccess('You have successfully registered & logged in!');
     }
 }
