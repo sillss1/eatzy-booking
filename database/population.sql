@@ -9,24 +9,24 @@ RESTART IDENTITY CASCADE;
 
 INSERT INTO "user" (username, email, name, surname, password, profile_description)
 VALUES
-    ('root_admin', 'admin@eatz.com', 'Alice', 'Root', 'adminpass', 'Lead platform administrator.'),
-    ('sec_admin', 'security@eatz.com', 'Bob', 'Secure', 'adminpass', 'Security and compliance officer.'),
+    ('root_admin', 'admin@eatz.com', 'Alice', 'Root', '$2y$12$QapHwKREapAyRHXJAIOu..hokWEyvF9KF2xSnjeMymCHn5Z85gPU2', 'Lead platform administrator.'),
+    ('sec_admin', 'security@eatz.com', 'Bob', 'Secure', '$2y$12$QapHwKREapAyRHXJAIOu..hokWEyvF9KF2xSnjeMymCHn5Z85gPU2', 'Security and compliance officer.'),
     
-    ('chef_charles', 'charles@gourmet.com', 'Charles', 'Pascale', 'ownerpass', 'Owner and head chef of The Gourmet Place.'),
-    ('diana_mgr', 'diana@italian.com', 'Diana', 'Rossi', 'ownerpass', 'Manager of Pizza Heaven and Pasta Palace.'),
-    ('eve_brunch', 'eve@cozy.com', 'Eve', 'Adams', 'ownerpass', 'Proprietor of The Cozy Corner.'),
-    ('frank_sushi', 'frank@sushi.com', 'Frank', 'Tanaka', 'ownerpass', 'Sushi master and owner of Sushi Central.'),
+    ('chef_charles', 'charles@gourmet.com', 'Charles', 'Pascale', '$2y$12$RYFJbQJ3zWwIzNC7QDGLOObebU1SZAm6lnoyd35cJtOUOgOI649CO', 'Owner and head chef of The Gourmet Place.'),
+    ('diana_mgr', 'diana@italian.com', 'Diana', 'Rossi', '$2y$12$RYFJbQJ3zWwIzNC7QDGLOObebU1SZAm6lnoyd35cJtOUOgOI649CO', 'Manager of Pizza Heaven and Pasta Palace.'),
+    ('eve_brunch', 'eve@cozy.com', 'Eve', 'Adams', '$2y$12$RYFJbQJ3zWwIzNC7QDGLOObebU1SZAm6lnoyd35cJtOUOgOI649CO', 'Proprietor of The Cozy Corner.'),
+    ('frank_sushi', 'frank@sushi.com', 'Frank', 'Tanaka', '$2y$12$RYFJbQJ3zWwIzNC7QDGLOObebU1SZAm6lnoyd35cJtOUOgOI649CO', 'Sushi master and owner of Sushi Central.'),
    
-    ('grace_foodie', 'grace@email.com', 'Grace', 'Hopper', 'userpass', 'Food enthusiast and blogger. Love trying new things!'),
-    ('heidi_eats', 'heidi@email.com', 'Heidi', 'Lamarr', 'userpass', 'I enjoy fine dining and quiet ambiances.'),
-    ('ivan_reviews', 'ivan@email.com', 'Ivan', 'Sutherland', 'userpass', 'Just a regular guy who loves a good meal.'),
-    ('judy_dines', 'judy@email.com', 'Judy', 'Martins', 'userpass', 'Casual diner, pizza lover.'),
-    ('kevin_hacks', 'kevin@email.com', 'Kevin', 'Mitnick', 'userpass', 'Looking for the best deals and happy hours.'),
-    ('laura_p', 'laura@email.com', 'Laura', 'Palmer', 'userpass', 'I celebrate all my special occasions by dining out.');
+    ('grace_foodie', 'grace@email.com', 'Grace', 'Hopper', '$2y$12$eCb5XLQFN6ILh3y8E3tRNun4Q4PZ45AMy5jrdYxTLeRzH35jMq.AS', 'Food enthusiast and blogger. Love trying new things!'),
+    ('heidi_eats', 'heidi@email.com', 'Heidi', 'Lamarr', '$2y$12$eCb5XLQFN6ILh3y8E3tRNun4Q4PZ45AMy5jrdYxTLeRzH35jMq.AS', 'I enjoy fine dining and quiet ambiances.'),
+    ('ivan_reviews', 'ivan@email.com', 'Ivan', 'Sutherland', '$2y$12$eCb5XLQFN6ILh3y8E3tRNun4Q4PZ45AMy5jrdYxTLeRzH35jMq.AS', 'Just a regular guy who loves a good meal.'),
+    ('judy_dines', 'judy@email.com', 'Judy', 'Martins', 'user$2y$12$eCb5XLQFN6ILh3y8E3tRNun4Q4PZ45AMy5jrdYxTLeRzH35jMq.ASpass', 'Casual diner, pizza lover.'),
+    ('kevin_hacks', 'kevin@email.com', 'Kevin', 'Mitnick', '$2y$12$eCb5XLQFN6ILh3y8E3tRNun4Q4PZ45AMy5jrdYxTLeRzH35jMq.AS', 'Looking for the best deals and happy hours.'),
+    ('laura_p', 'laura@email.com', 'Laura', 'Palmer', '$2y$12$eCb5XLQFN6ILh3y8E3tRNun4Q4PZ45AMy5jrdYxTLeRzH35jMq.AS', 'I celebrate all my special occasions by dining out.');
 
 INSERT INTO "user" (username, email, name, surname, password, is_blocked, profile_description)
 VALUES
-    ('blocked_user', 'blocked@email.com', 'Blocked', 'User', 'userpass', true, 'This account has been blocked by administrators.');
+    ('blocked_user', 'blocked@email.com', 'Blocked', 'User', '$2y$12$eCb5XLQFN6ILh3y8E3tRNun4Q4PZ45AMy5jrdYxTLeRzH35jMq.AS', true, 'This account has been blocked by administrators.');
 
 INSERT INTO "administrator" (id) VALUES (1), (2);
 INSERT INTO "owner" (id) VALUES (3), (4), (5), (6);
