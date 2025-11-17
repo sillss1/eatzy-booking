@@ -93,7 +93,11 @@ return [
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
+            'schema' => env('DB_SCHEMA', 'public'),
             'search_path' => env('DB_SCHEMA', 'public'),
+            'options' => [
+            PDO::ATTR_EMULATE_PREPARES => true,
+            ],
             'sslmode' => 'prefer',
         ],
 

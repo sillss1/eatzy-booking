@@ -25,6 +25,8 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    protected $table = 'user';
+
     protected $fillable = [
         'name',
         'email',
@@ -62,8 +64,8 @@ class User extends Authenticatable
      * Defines a one-to-many relationship:
      * a user can have multiple cards.
      */
-    public function cards(): HasMany
-    {
-        return $this->hasMany(Card::class);
-    }
+    // public function cards(): HasMany
+    // {
+    //     return $this->hasMany(Card::class);
+    // }
 }

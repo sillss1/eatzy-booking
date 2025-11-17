@@ -20,7 +20,7 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         if (Auth::check()) {
-            return redirect()->route('cards.index');
+            return redirect()->route('restaurants.index');
         } else {
             return view('auth.login');
         }
