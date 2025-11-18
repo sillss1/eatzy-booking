@@ -14,6 +14,11 @@ class User extends Authenticatable {
         return \DB::table('owner')->where('id', $this->id)->exists();
     }
 
+    public function isCustomer(): bool
+    {
+        return \DB::table('customer')->where('id', $this->id)->exists();
+    }
+
     public function isAdmin(): bool
     {
         return \DB::table('administrator')->where('id', $this->id)->exists();
