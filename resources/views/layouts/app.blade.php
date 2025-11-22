@@ -25,7 +25,8 @@
 
             @auth
                 <div>
-                {{-- Customer --}}
+
+                    {{-- Customer or Admin --}}
                     @if (Auth::user()->isCustomer() || Auth::user()->isAdmin())
                         <nav style="display: flex; gap: 1rem;">
                             <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
@@ -33,9 +34,17 @@
                         </nav>
                     @endif
 
+                    {{-- Owner --}}
+                    @if (Auth::user()->isOwner())
+                        <nav style="display: flex; gap: 1rem;">
+                            <a class="button" href="{{ route('restaurants.create') }}">Add Restaurant</a>
+                            <a class="button" href="{{ route('restaurants.index') }}">My Restaurants</a>
+                        </nav>
+                    @endif
+
                     {{-- Logout --}}
-                    <span>{{ Auth::user()->name }}</span>   
-                    <a class="button" href="{{ url('/logout') }}"> Logout </a>
+                    <span>{{ Auth::user()->name }}</span>
+                    <a class="button" href="{{ url('/logout') }}">Logout</a>
                 </div>
             @endauth
         </header>
