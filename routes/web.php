@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\CardController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ReservationController;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -16,29 +17,27 @@ use App\Http\Controllers\Auth\LogoutController;
 // -------------------------------------
 Route::redirect('/', '/login');
 
-
 // -------------------------------------
-// Cards
+// Reservations
 // -------------------------------------
-Route::middleware('auth')->controller(CardController::class)->group(function () {
-    Route::get('/cards', 'index')->name('cards.index');
-    Route::get('/cards/{card}', 'show')->name('cards.show');
-});
+Route::middleware('auth')->controller(ReservationController::class)->group(function () {
 
+        Route::get('/reservations', 'index')->name('reservations.index');
 
-// -------------------------------------
-// API 
-// -------------------------------------
-Route::middleware('auth')->controller(CardController::class)->group(function () {
-    Route::post('/api/cards', 'store');
-    Route::delete('/api/cards/{card}', 'destroy');
-});
+        Route::get('/restaurants/{restaurant_id}/reserve', 'create')->name('reservations.create');
 
-Route::middleware('auth')->controller(ItemController::class)->group(function () {
-    Route::post('/api/cards/{card}/items', 'store');
-    Route::patch('/api/items/{item}', 'update');
-    Route::delete('/api/items/{item}', 'destroy');
-});
+        Route::post('/restaurants/{restaurant_id}/reserve', 'store')->name('reservations.store');
+    
+        Route::get('/reservations/{id}', 'show')->name('reservations.show');
+
+        Route::delete('/reservations/{id}', 'destroy')->name('reservations.destroy');
+
+        Route::get('/reservations/{id}/edit', 'edit')->name('reservations.edit');
+
+        Route::put('/reservations/{id}', 'update')->name('reservations.update');
+
+        Route::post('/reservations/{id}/cancel', 'cancel')->name('reservations.cancel');
+    });
 
 
 // -------------------------------------

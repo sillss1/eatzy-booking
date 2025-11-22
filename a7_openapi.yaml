@@ -655,6 +655,28 @@ paths:
           description: 'Reservation not found'
       x-permissions:
         - USR
+    delete:
+      operationId: R314
+      summary: 'R314: Delete Reservation'
+      description: 'Permanently delete reservation. Access: CUS'
+      tags:
+        - 'M03: Reservations'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '302':
+          description: 'Redirect after deletion'
+        '403':
+          description: 'Forbidden. Not your reservation'
+        '404':
+          description: 'Reservation not found'
+      x-permissions:
+        - CUS
+        - ADM
 
   /reservations/{id}/edit:
     get:
@@ -920,6 +942,7 @@ paths:
           description: 'Not found'
       x-permissions:
         - USR
+
 
   # M04: Reviews
   /restaurants/{restaurant_id}/reviews:

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Restaurant extends Model
 {
-    protected $table = 'restaurant';   // SQL table name
+    protected $table = 'restaurant'; 
     protected $primaryKey = 'id';
 
     public $timestamps = false;        
@@ -28,6 +28,12 @@ class Restaurant extends Model
         'closed_at',
     ];
 
+    protected $casts = [
+        'opening_hours' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime', 
+        'closed_at' => 'datetime'
+    ];
    
     public function owner(): BelongsTo
     {
@@ -44,5 +50,32 @@ class Restaurant extends Model
     public function favouritedBy(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'favourite', 'restaurant_id', 'user_id');
+    }
+
+    public function getFormattedOpeningHoursAttribute(): array
+    {
+        $days = [
+            'Monday' => 'mon',
+            'Tuesday' => 'tue', 
+            'Wednesday' => 'wed',
+            'Thursday' => 'thu',
+            'Friday' => 'fri',
+            'Saturday' => 'sat',
+            'Sunday' => 'sun',
+        ];
+
+        $formatted = [];
+
+        foreach ($days as $label => $key) {
+            $hours = $this->opening_hours[$key] ?? [];
+            
+            if (count($hours) === 0) {
+                $formatted[$label] = 'Closed';
+            } else {
+                $formatted[$label] = implode(', ', $hours);
+            }
+        }
+
+        return $formatted;
     }
 }
