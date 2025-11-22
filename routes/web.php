@@ -69,3 +69,10 @@ Route::controller(RegisterController::class)->group(function () {
     Route::get('/register', 'showRegistrationForm')->name('register');
     Route::post('/register', 'register');
 });
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/owner/restaurants/create', [RestaurantController::class, 'create'])->name('restaurants.create');
+    Route::post('/owner/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
+
+});
