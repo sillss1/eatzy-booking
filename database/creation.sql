@@ -35,6 +35,7 @@ DROP TRIGGER IF EXISTS update_review_edit_time ON review CASCADE;
 DROP TRIGGER IF EXISTS update_reply_edit_time ON reply CASCADE;
 DROP TRIGGER IF EXISTS update_reservation_edit_time ON reservation CASCADE;
 DROP TRIGGER IF EXISTS cascade_restaurant_archive_trigger ON restaurant CASCADE;
+DROP TRIGGER IF EXISTS validate_opening_hours ON reservation CASCADE;
 
 DROP FUNCTION IF EXISTS restaurant_search_update() CASCADE;
 DROP FUNCTION IF EXISTS archive_user_data() CASCADE;
@@ -47,6 +48,8 @@ DROP FUNCTION IF EXISTS notify_new_reservation() CASCADE;
 DROP FUNCTION IF EXISTS validate_reservation_modification() CASCADE;
 DROP FUNCTION IF EXISTS update_edit_timestamps() CASCADE;
 DROP FUNCTION IF EXISTS cascade_restaurant_archive() CASCADE;
+DROP FUNCTION IF EXISTS can_reserve(INT, DATE, TIME) CASCADE;
+DROP FUNCTION IF EXISTS check_opening_hours() CASCADE;
 
 CREATE DOMAIN types_of_reservation_notification AS TEXT
 CHECK(
@@ -74,7 +77,7 @@ CREATE TABLE "user" (
     is_blocked BOOLEAN NOT NULL DEFAULT false,
     profile_picture TEXT,
     profile_description TEXT,
-    deleted_at DATE
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE "administrator" (
@@ -97,11 +100,11 @@ CREATE TABLE "restaurant" (
     email TEXT NOT NULL,
     phone_number TEXT,
     address TEXT NOT NULL,
-    opening_hours TEXT NOT NULL,
+    opening_hours JSONB NOT NULL,
     capacity INTEGER CHECK (capacity > 0),
-    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-    updated_at DATE,
-    closed_at DATE
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    closed_at TIMESTAMP
 );
 
 CREATE TABLE "favourite" (
@@ -116,9 +119,9 @@ CREATE TABLE "review" (
     restaurant_id INTEGER REFERENCES "restaurant"(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
-    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-    edited_at DATE,
-    deleted_at DATE
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    edited_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE "reply" (
@@ -126,9 +129,9 @@ CREATE TABLE "reply" (
     user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
     review_id INTEGER REFERENCES "review"(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
-    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-    edited_at DATE,
-    deleted_at DATE
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    edited_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE "restaurant_photo" (
@@ -151,9 +154,9 @@ CREATE TABLE "reservation" (
     time_of_visit TIME NOT NULL,
     is_confirmed BOOLEAN NOT NULL DEFAULT false,
     is_completed BOOLEAN NOT NULL DEFAULT false,
-    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-    edited_at DATE,
-    deleted_at DATE
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    edited_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE "waitlist" (
@@ -230,43 +233,41 @@ CREATE TRIGGER restaurant_search_update
 
 CREATE INDEX restaurant_search_idx ON restaurant USING GIN (tsvectors);
 
+/*
 CREATE OR REPLACE FUNCTION archive_user_data() 
 RETURNS TRIGGER AS $$
 BEGIN
     UPDATE "review" 
-    SET user_id = NULL
     WHERE user_id = OLD.id;
 
     UPDATE "reply" 
-    SET user_id = NULL
     WHERE user_id = OLD.id;
  
     UPDATE "reservation" 
-    SET user_id = NULL
     WHERE user_id = OLD.id;
 
     UPDATE "waitlist" 
-    SET user_id = NULL
     WHERE user_id = OLD.id;
 
     DELETE FROM "favourite" 
     WHERE user_id = OLD.id;
 
     UPDATE "notification" 
-    SET user_id = NULL
     WHERE user_id = OLD.id;
 
-    NEW.deleted_at = CURRENT_DATE;
+    NEW.deleted_at = CURRENT_TIMESTAMP;
     
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 
 CREATE TRIGGER user_archive_trigger
 BEFORE UPDATE ON "user"
 FOR EACH ROW
 WHEN (OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL)
 EXECUTE FUNCTION archive_user_data();
+*/
 
 CREATE OR REPLACE FUNCTION check_completed_reservation_before_review()
 RETURNS TRIGGER AS $$
@@ -303,7 +304,6 @@ BEGIN
     FROM reservation
     WHERE restaurant_id = NEW.restaurant_id
       AND date_of_visit = NEW.date_of_visit
-      AND time_of_visit = NEW.time_of_visit
       AND deleted_at IS NULL
       AND id != COALESCE(NEW.id, -1);
 
@@ -343,7 +343,7 @@ CREATE TRIGGER auto_complete_reservations
 CREATE OR REPLACE FUNCTION update_restaurant_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = CURRENT_DATE;
+    NEW.updated_at = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -358,7 +358,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
         UPDATE reply 
-        SET deleted_at = CURRENT_DATE
+        SET deleted_at = CURRENT_TIMESTAMP
         WHERE review_id = NEW.id 
           AND deleted_at IS NULL;
     END IF;
@@ -429,17 +429,17 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF TG_TABLE_NAME = 'review' THEN
         IF NEW.content IS DISTINCT FROM OLD.content OR NEW.rating IS DISTINCT FROM OLD.rating THEN
-            NEW.edited_at = CURRENT_DATE;
+            NEW.edited_at = CURRENT_TIMESTAMP;
         END IF;
     ELSIF TG_TABLE_NAME = 'reply' THEN
         IF NEW.content IS DISTINCT FROM OLD.content THEN
-            NEW.edited_at = CURRENT_DATE;
+            NEW.edited_at = CURRENT_TIMESTAMP;
         END IF;
     ELSIF TG_TABLE_NAME = 'reservation' THEN
         IF NEW.number_of_people IS DISTINCT FROM OLD.number_of_people OR
            NEW.date_of_visit IS DISTINCT FROM OLD.date_of_visit OR
            NEW.time_of_visit IS DISTINCT FROM OLD.time_of_visit THEN
-            NEW.edited_at = CURRENT_DATE;
+            NEW.edited_at = CURRENT_TIMESTAMP;
         END IF;
     END IF;
     
@@ -485,3 +485,65 @@ CREATE TRIGGER cascade_restaurant_archive_trigger
     AFTER UPDATE ON restaurant
     FOR EACH ROW
     EXECUTE FUNCTION cascade_restaurant_archive();
+
+
+
+CREATE OR REPLACE FUNCTION can_reserve(
+    restaurant_id INT,
+    res_date DATE,
+    res_time TIME
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+    day_key TEXT;
+    time_slot TEXT;
+    start_time TIME;
+    end_time TIME;
+    hours_json JSONB;
+BEGIN
+    day_key := lower(to_char(res_date, 'Dy'));
+    day_key := replace(day_key, '.', '');
+    
+    SELECT opening_hours INTO hours_json
+    FROM restaurant 
+    WHERE id = restaurant_id;
+    
+    IF hours_json IS NULL OR hours_json->day_key IS NULL OR jsonb_array_length(hours_json->day_key) = 0 THEN
+        RETURN FALSE;
+    END IF;
+
+    FOR time_slot IN
+        SELECT jsonb_array_elements_text(hours_json->day_key)
+    LOOP
+        BEGIN
+            start_time := split_part(trim(time_slot), '-', 1)::time;
+            end_time := split_part(trim(time_slot), '-', 2)::time;
+            
+            IF res_time >= start_time AND res_time < end_time THEN
+                RETURN TRUE;
+            END IF;
+        EXCEPTION
+            WHEN others THEN
+                CONTINUE;
+        END;
+    END LOOP;
+
+    RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION check_opening_hours()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NOT can_reserve(NEW.restaurant_id, NEW.date_of_visit, NEW.time_of_visit) THEN
+        RAISE EXCEPTION 'Restaurant is not opened at this time.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER validate_opening_hours
+    BEFORE INSERT OR UPDATE ON reservation
+    FOR EACH ROW
+    EXECUTE FUNCTION check_opening_hours();
