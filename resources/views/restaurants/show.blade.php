@@ -14,6 +14,13 @@
                 Book a table
             </a>
         @endif
+        @if(auth()->user()->isOwner() && auth()->user()->id === $restaurant->owner_id)
+        <p>
+            <a class="button" href="{{ route('restaurants.edit', $restaurant->id) }}">
+                Edit Restaurant
+            </a>
+        </p>
+        @endif
     @endauth
 
 @endsection
