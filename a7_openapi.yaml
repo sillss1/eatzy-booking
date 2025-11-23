@@ -3,14 +3,18 @@ openapi: 3.0.0
 info:
   version: '1.0'
   title: 'EatZy Booking Web API'
-  description: 'Web Resources Specification (A7) for EatZy Booking'
+  description: >-
+    Web Resources Specification (A7) for EatZy Booking.
+    This specification includes both:
+    1. Web UI Routes (Form submissions, Redirections 302)
+    2. REST API Routes (JSON responses, Status 200/201/204, using GET/POST/PUT/DELETE)
 
 servers:
-- url: http://lbaw25145.lbaw.fe.up.pt
-  description: Production server
+  - url: http://lbaw25145.lbaw.fe.up.pt
+    description: Production server
 
 externalDocs:
-  description: Find more information here
+  description: Project Wiki and Documentation
   url: https://git.fe.up.pt/lbaw/lbaw2425/lbaw25145/-/wikis/home
 
 tags:
@@ -22,24 +26,23 @@ tags:
   - name: 'M06: Administration'
 
 paths:
-  # M01: Authentication
+  # ============================================================
+  # M01: Authentication & Individual Profile
+  # ============================================================
   /login:
     get:
       operationId: R101
       summary: 'R101: Login Form'
-      description: 'Provide login form. Access: VIS'
+      description: 'Provide login form. Access: VIS (Public)'
       tags:
         - 'M01: Authentication'
       responses:
         '200':
-          description: 'Ok. Show login form'
-      x-permissions:
-        - VIS
-
+          description: 'Ok. Show login UI'
     post:
       operationId: R102
       summary: 'R102: Login Action'
-      description: 'Process login credentials. Access: VIS'
+      description: 'Processes the login form submission. Access: VIS'
       tags:
         - 'M01: Authentication'
       requestBody:
@@ -60,142 +63,106 @@ paths:
                 - password
       responses:
         '302':
-          description: 'Redirect after login'
+          description: 'Redirect after processing login.'
           headers:
             Location:
               schema:
                 type: string
-              examples:
-                302Success:
-                  description: 'Success. Redirect to home page'
-                  value: '/restaurants'
-                302Failure:
-                  description: 'Failed. Redirect to login form'
-                  value: '/login'
-      x-permissions:
-        - VIS
+                example: '/restaurants'
 
   /logout:
     post:
       operationId: R103
       summary: 'R103: Logout Action'
-      description: 'Logout current user. Access: USR'
+      description: 'Logout the current authenticated user. Access: USR'
       tags:
         - 'M01: Authentication'
       responses:
         '302':
-          description: 'Redirect after logout'
+          description: 'Redirect to login form.'
           headers:
             Location:
               schema:
                 type: string
-              example: '/login'
-      x-permissions:
-        - USR
+                example: '/login'
 
   /register:
     get:
       operationId: R104
       summary: 'R104: Register Form'
-      description: 'Show registration form. Access: VIS'
+      description: 'Provide new user registration form. Access: VIS'
       tags:
         - 'M01: Authentication'
       responses:
         '200':
-          description: 'Ok. Show registration form'
-      x-permissions:
-        - VIS
-
+          description: 'Ok. Show sign-up UI'
     post:
       operationId: R105
       summary: 'R105: Register Action'
-      description: 'Process registration form. Access: VIS'
+      description: 'Processes registration form. Access: VIS'
       tags:
         - 'M01: Authentication'
       requestBody:
         required: true
         content:
-          application/x-www-form-urlencoded:
+          multipart/form-data: # Multipart to allow profile picture upload (R01)
             schema:
               type: object
               properties:
-                username:
-                  type: string
-                email:
-                  type: string
-                  format: email
                 name:
                   type: string
                 surname:
                   type: string
+                username:
+                  type: string
+                email:
+                  type: string
                 password:
                   type: string
-                  format: password
                 password_confirmation:
                   type: string
-                  format: password
+                profile_picture:
+                  type: string
+                  format: binary
               required:
-                - username
                 - email
-                - name
-                - surname
                 - password
-                - password_confirmation
+                - username
       responses:
         '302':
-          description: 'Redirect after registration'
-          headers:
-            Location:
-              schema:
-                type: string
-              examples:
-                302Success:
-                  description: 'Success. Redirect to home'
-                  value: '/restaurants'
-                302Failure:
-                  description: 'Failed. Redirect to register form'
-                  value: '/register'
-      x-permissions:
-        - VIS
+          description: 'Redirect to home page after registration.'
 
-  /profile:
+  /users/{id}:
     get:
       operationId: R106
-      summary: 'R106: View User Profile'
-      description: 'Show user profile page. Access: USR'
+      summary: 'R106: View user profile'
+      description: 'Show individual user profile. Access: USR'
       tags:
         - 'M01: Authentication'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       responses:
         '200':
-          description: 'Ok. Show user profile'
-        '403':
-          description: 'Forbidden. Must be authenticated'
-      x-permissions:
-        - USR
+          description: 'Ok. Show view profile UI'
 
-  /profile/edit:
-    get:
-      operationId: R107
-      summary: 'R107: Edit Profile Form'
-      description: 'Show edit profile form. Access: USR'
-      tags:
-        - 'M01: Authentication'
-      responses:
-        '200':
-          description: 'Ok. Show edit form'
-        '403':
-          description: 'Forbidden. Must be authenticated'
-      x-permissions:
-        - USR
-
+  /users/{id}/edit:
     post:
-      operationId: R108
-      summary: 'R108: Edit Profile Action'
-      description: 'Update user profile. Access: USR'
+      operationId: R107
+      summary: 'R107: Update Profile Action'
+      description: 'Update user info. Access: OWN'
       tags:
         - 'M01: Authentication'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       requestBody:
-        required: true
         content:
           multipart/form-data:
             schema:
@@ -205,68 +172,22 @@ paths:
                   type: string
                 surname:
                   type: string
+                profile_description:
+                  type: string
                 profile_picture:
                   type: string
                   format: binary
-                profile_description:
-                  type: string
       responses:
         '302':
-          description: 'Redirect after update'
-        '403':
-          description: 'Forbidden'
-      x-permissions:
-        - USR
+          description: 'Redirect to profile view.'
 
-  /profile/delete:
+  /users/{id}/delete:
     post:
       operationId: R109
       summary: 'R109: Delete Account'
-      description: 'Delete user account. Access: USR'
+      description: 'Soft-delete account (Anonymization per BR01/TRIGGER01). Access: OWN'
       tags:
         - 'M01: Authentication'
-      responses:
-        '302':
-          description: 'Redirect after deletion'
-        '403':
-          description: 'Forbidden'
-      x-permissions:
-        - USR
-
-  # M02: Restaurants
-  /restaurants:
-    get:
-      operationId: R201
-      summary: 'R201: Browse Restaurants'
-      description: 'List all restaurants with filters. Access: VIS'
-      tags:
-        - 'M02: Restaurants'
-      parameters:
-        - in: query
-          name: search
-          description: 'Search query'
-          schema:
-            type: string
-          required: false
-        - in: query
-          name: capacity
-          description: 'Minimum capacity'
-          schema:
-            type: integer
-          required: false
-      responses:
-        '200':
-          description: 'Ok. Show restaurants list'
-      x-permissions:
-        - VIS
-
-  /restaurants/{id}:
-    get:
-      operationId: R202
-      summary: 'R202: View Restaurant Details'
-      description: 'Show restaurant details page. Access: VIS'
-      tags:
-        - 'M02: Restaurants'
       parameters:
         - in: path
           name: id
@@ -274,12 +195,32 @@ paths:
             type: integer
           required: true
       responses:
+        '302':
+          description: 'Redirect to homepage.'
+
+  # ============================================================
+  # M02: Restaurants
+  # ============================================================
+  /restaurants:
+    get:
+      operationId: R201
+      summary: 'R201: Browse Restaurants'
+      description: 'List restaurants with search filters (IDX04). Access: VIS'
+      tags:
+        - 'M02: Restaurants'
+      parameters:
+        - in: query
+          name: search
+          description: Full text search (name, description)
+          schema:
+            type: string
+        - in: query
+          name: capacity
+          schema:
+            type: integer
+      responses:
         '200':
-          description: 'Ok. Show restaurant details'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - VIS
+          description: 'Ok. Show list UI.'
 
   /restaurants/create:
     get:
@@ -290,16 +231,11 @@ paths:
         - 'M02: Restaurants'
       responses:
         '200':
-          description: 'Ok. Show create form'
-        '403':
-          description: 'Forbidden. Must be owner'
-      x-permissions:
-        - OWN
-
+          description: 'Ok. Show create UI.'
     post:
       operationId: R204
       summary: 'R204: Create Restaurant Action'
-      description: 'Create new restaurant. Access: OWN'
+      description: 'Creates a new restaurant entity. Access: OWN'
       tags:
         - 'M02: Restaurants'
       requestBody:
@@ -313,37 +249,27 @@ paths:
                   type: string
                 description:
                   type: string
-                email:
-                  type: string
-                  format: email
-                phone_number:
-                  type: string
                 address:
                   type: string
                 opening_hours:
                   type: string
                 capacity:
                   type: integer
-              required:
-                - name
-                - description
-                - email
-                - address
-                - opening_hours
-                - capacity
+                # R10: Photos
+                photos:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
       responses:
         '302':
-          description: 'Redirect after creation'
-        '403':
-          description: 'Forbidden'
-      x-permissions:
-        - OWN
+          description: 'Redirect to restaurant page.'
 
-  /restaurants/{id}/edit:
+  /restaurants/{id}:
     get:
-      operationId: R205
-      summary: 'R205: Edit Restaurant Form'
-      description: 'Show form to edit restaurant. Access: OWN'
+      operationId: R202
+      summary: 'R202: View Restaurant Details'
+      description: 'Show details, menu, photos and reviews. Access: VIS'
       tags:
         - 'M02: Restaurants'
       parameters:
@@ -354,20 +280,33 @@ paths:
           required: true
       responses:
         '200':
-          description: 'Ok. Show edit form'
-        '403':
-          description: 'Forbidden. Not the owner'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - OWN
+          description: 'Ok. Show details UI.'
 
-    post:
-      operationId: R206
-      summary: 'R206: Edit Restaurant Action'
-      description: 'Update restaurant details. Access: OWN'
+  # ============================================================
+  # M03: Reservations (UI & Logic)
+  # ============================================================
+  /restaurants/{id}/reserve:
+    get:
+      operationId: R302
+      summary: 'R302: Reservation Form'
+      description: 'Show booking form. Access: CUS'
       tags:
-        - 'M02: Restaurants'
+        - 'M03: Reservations'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Show booking UI.'
+    post:
+      operationId: R303
+      summary: 'R303: Make Reservation Action'
+      description: 'Attempts to create reservation (Uses F01, TRAN01). Access: CUS'
+      tags:
+        - 'M03: Reservations'
       parameters:
         - in: path
           name: id
@@ -375,140 +314,134 @@ paths:
             type: integer
           required: true
       requestBody:
-        required: true
         content:
-          multipart/form-data:
+          application/x-www-form-urlencoded:
             schema:
               type: object
               properties:
-                name:
+                date_of_visit:
                   type: string
-                description:
+                  format: date
+                time_of_visit:
                   type: string
-                email:
-                  type: string
-                phone_number:
-                  type: string
-                address:
-                  type: string
-                opening_hours:
-                  type: string
-                capacity:
+                  format: time
+                number_of_people:
                   type: integer
       responses:
         '302':
-          description: 'Redirect after update'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - OWN
+          description: 'Success: Redirect to reservations list. Failure: Redirect to form with errors.'
 
-  /restaurants/{id}/delete:
-    post:
-      operationId: R207
-      summary: 'R207: Delete Restaurant'
-      description: 'Delete/archive restaurant. Access: OWN'
+  /reservations:
+    get:
+      operationId: R301
+      summary: 'R301: List My Reservations'
+      description: 'View history of reservations. Access: CUS'
       tags:
-        - 'M02: Restaurants'
+        - 'M03: Reservations'
+      responses:
+        '200':
+          description: 'Ok. Show history UI.'
+
+  # ============================================================
+  # M04: Reviews (UI)
+  # ============================================================
+  /restaurants/{id}/reviews:
+    post:
+      operationId: R402
+      summary: 'R402: Post Review Action'
+      description: 'Submit review. Triggers check (TRIGGER02) for completed reservation. Access: CUS'
+      tags:
+        - 'M04: Reviews'
       parameters:
         - in: path
           name: id
           schema:
             type: integer
           required: true
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                content:
+                  type: string
       responses:
         '302':
-          description: 'Redirect after deletion'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - OWN
+          description: 'Redirect to restaurant page.'
 
-  /restaurants/{id}/favourite:
-    post:
-      operationId: R208
-      summary: 'R208: Add to Favourites'
-      description: 'Add restaurant to user favourites. Access: CUS'
-      tags:
-        - 'M02: Restaurants'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Added to favourites'
-        '403':
-          description: 'Forbidden. Must be customer'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - CUS
-
-  /restaurants/{id}/unfavourite:
-    post:
-      operationId: R209
-      summary: 'R209: Remove from Favourites'
-      description: 'Remove restaurant from favourites. Access: CUS'
-      tags:
-        - 'M02: Restaurants'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Removed from favourites'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - CUS
-
-  /favourites:
+  # ============================================================
+  # M05: Notifications & Offers
+  # ============================================================
+  /notifications:
     get:
-      operationId: R210
-      summary: 'R210: View Favourite Restaurants'
-      description: 'List user favourite restaurants. Access: CUS'
+      operationId: R501
+      summary: 'R501: Notifications Center'
+      description: 'View unread notifications. Access: USR'
       tags:
-        - 'M02: Restaurants'
+        - 'M05: Notifications'
       responses:
         '200':
-          description: 'Ok. Show favourites list'
-        '403':
-          description: 'Forbidden. Must be customer'
-      x-permissions:
-        - CUS
+          description: 'Ok. Show list.'
+
+  /restaurants/{id}/offers:
+    post:
+      operationId: R506
+      summary: 'R506: Create Offer Action'
+      description: 'Owner creates a promotional offer. Access: OWN'
+      tags:
+        - 'M05: Notifications'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+      responses:
+        '302':
+          description: 'Redirect to restaurant dashboard.'
+
+  # ============================================================
+  # API ROUTES (RESTful JSON) - Satisfying "More HTTP Methods"
+  # These routes are designed for AJAX/Fetch calls or Mobile App
+  # ============================================================
 
   /api/restaurants:
     get:
-      operationId: R211
-      summary: 'R211: Search Restaurants API'
-      description: 'Search restaurants returning JSON. Access: VIS'
+      operationId: API_R211
+      summary: 'Search Restaurants API'
+      description: 'Returns JSON array of restaurants. Access: PUB'
       tags:
         - 'M02: Restaurants'
       parameters:
         - in: query
           name: query
-          description: 'Search query'
+          description: Full text search string
           schema:
             type: string
-          required: false
         - in: query
           name: capacity
-          description: 'Minimum capacity'
+          description: Filter by minimum capacity
           schema:
             type: integer
-          required: false
       responses:
         '200':
           description: 'Success'
@@ -523,370 +456,65 @@ paths:
                       type: integer
                     name:
                       type: string
-                    description:
-                      type: string
-                    address:
-                      type: string
-                    capacity:
-                      type: integer
                     rating:
                       type: number
-              example:
-                - id: 1
-                  name: "Tasca da Esquina"
-                  description: "Traditional Portuguese cuisine"
-                  address: "Rua de Santa Catarina, 123, Porto"
-                  capacity: 50
-                  rating: 4.5
-                - id: 2
-                  name: "Marisqueira do Porto"
-                  description: "Fresh seafood specialties"
-                  address: "Av. dos Aliados, 456, Porto"
-                  capacity: 80
-                  rating: 4.8
-      x-permissions:
-        - VIS
-
-  # M03: Reservations
-  /reservations:
-    get:
-      operationId: R301
-      summary: 'R301: View My Reservations'
-      description: 'List user reservations. Access: USR'
-      tags:
-        - 'M03: Reservations'
-      responses:
-        '200':
-          description: 'Ok. Show reservations list'
-        '403':
-          description: 'Forbidden. Must be authenticated'
-      x-permissions:
-        - USR
-
-  /restaurants/{restaurant_id}/reserve:
-    get:
-      operationId: R302
-      summary: 'R302: Create Reservation Form'
-      description: 'Show reservation form. Access: CUS'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: restaurant_id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Show reservation form'
-        '403':
-          description: 'Forbidden. Must be customer'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - CUS
-
-    post:
-      operationId: R303
-      summary: 'R303: Create Reservation Action'
-      description: 'Create new reservation. Access: CUS'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: restaurant_id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                description:
-                  type: string
-                number_of_people:
-                  type: integer
-                date_of_visit:
-                  type: string
-                  format: date
-                time_of_visit:
-                  type: string
-                  format: time
-              required:
-                - number_of_people
-                - date_of_visit
-                - time_of_visit
-      responses:
-        '302':
-          description: 'Redirect after creation'
-        '400':
-          description: 'Bad request. Validation errors'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - CUS
-
-  /reservations/{id}:
-    get:
-      operationId: R304
-      summary: 'R304: View Reservation Details'
-      description: 'Show reservation details. Access: USR'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Show reservation details'
-        '403':
-          description: 'Forbidden. Not your reservation'
-        '404':
-          description: 'Reservation not found'
-      x-permissions:
-        - USR
-    delete:
-      operationId: R314
-      summary: 'R314: Delete Reservation'
-      description: 'Permanently delete reservation. Access: CUS'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '302':
-          description: 'Redirect after deletion'
-        '403':
-          description: 'Forbidden. Not your reservation'
-        '404':
-          description: 'Reservation not found'
-      x-permissions:
-        - CUS
-        - ADM
-
-  /reservations/{id}/edit:
-    get:
-      operationId: R305
-      summary: 'R305: Edit Reservation Form'
-      description: 'Show edit reservation form. Access: CUS'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Show edit form'
-        '403':
-          description: 'Forbidden. Not your reservation'
-        '404':
-          description: 'Reservation not found'
-      x-permissions:
-        - CUS
-
-    post:
-      operationId: R306
-      summary: 'R306: Edit Reservation Action'
-      description: 'Update reservation. Access: CUS'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                description:
-                  type: string
-                number_of_people:
-                  type: integer
-                date_of_visit:
-                  type: string
-                  format: date
-                time_of_visit:
-                  type: string
-                  format: time
-      responses:
-        '302':
-          description: 'Redirect after update'
-        '400':
-          description: 'Bad request'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Reservation not found'
-      x-permissions:
-        - CUS
-
-  /reservations/{id}/cancel:
-    post:
-      operationId: R307
-      summary: 'R307: Cancel Reservation'
-      description: 'Cancel/delete reservation. Access: CUS'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '302':
-          description: 'Redirect after cancellation'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Reservation not found'
-      x-permissions:
-        - CUS
-
-  /reservations/{id}/confirm:
-    post:
-      operationId: R308
-      summary: 'R308: Confirm Reservation'
-      description: 'Owner confirms reservation. Access: OWN'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Reservation confirmed'
-        '403':
-          description: 'Forbidden. Not your restaurant'
-        '404':
-          description: 'Reservation not found'
-      x-permissions:
-        - OWN
-
-  /reservations/{id}/complete:
-    post:
-      operationId: R309
-      summary: 'R309: Mark Reservation as Completed'
-      description: 'Mark reservation as completed. Access: OWN'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Reservation completed'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Reservation not found'
-      x-permissions:
-        - OWN
-
-  /restaurants/{restaurant_id}/reservations:
-    get:
-      operationId: R310
-      summary: 'R310: View Restaurant Reservations'
-      description: 'List all reservations for restaurant. Access: OWN'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: restaurant_id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Show reservations list'
-        '403':
-          description: 'Forbidden. Not your restaurant'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - OWN
-
-  /waitlist/{reservation_id}:
-    post:
-      operationId: R311
-      summary: 'R311: Join Waitlist'
-      description: 'Add to reservation waitlist. Access: CUS'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: reservation_id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Added to waitlist'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Reservation not found'
-      x-permissions:
-        - CUS
-
-  /waitlist/{id}/leave:
-    post:
-      operationId: R312
-      summary: 'R312: Leave Waitlist'
-      description: 'Remove from waitlist. Access: CUS'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Removed from waitlist'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Waitlist entry not found'
-      x-permissions:
-        - CUS
+                    location:
+                      type: string
 
   /api/reservations/{id}:
-    get:
-      operationId: R313
-      summary: 'R313: Get Reservation Status API'
-      description: 'Get reservation status as JSON. Access: USR'
+    put:
+      operationId: API_R306
+      summary: 'Update Reservation API'
+      description: 'Modify reservation details (Uses TRAN06). Access: CUS'
+      tags:
+        - 'M03: Reservations'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                number_of_people:
+                  type: integer
+                time_of_visit:
+                  type: string
+                  format: time
+      responses:
+        '200':
+          description: 'Reservation updated successfully'
+        '403':
+          description: 'Forbidden (e.g. trying to edit past reservation)'
+    
+    delete:
+      operationId: API_R314
+      summary: 'Cancel Reservation API'
+      description: 'Cancels/Soft-deletes reservation (TRAN10). Access: CUS'
+      tags:
+        - 'M03: Reservations'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '204':
+          description: 'No Content. Reservation cancelled.'
+        '404':
+          description: 'Reservation not found.'
+
+  /api/waitlist/{id}:
+    delete:
+      operationId: API_R312
+      summary: 'Leave Waitlist API'
+      description: 'Remove entry from waitlist. Access: CUS'
       tags:
         - 'M03: Reservations'
       parameters:
@@ -897,7 +525,32 @@ paths:
           required: true
       responses:
         '200':
-          description: 'Success'
+          description: 'Removed from waitlist'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'removed'
+
+  /api/reviews/{id}:
+    delete:
+      operationId: API_R406
+      summary: 'Delete Review API'
+      description: 'Delete a review. Access: ADM or Review Owner'
+      tags:
+        - 'M04: Reviews'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Review deleted'
           content:
             application/json:
               schema:
@@ -905,114 +558,17 @@ paths:
                 properties:
                   id:
                     type: integer
-                  status:
-                    type: string
-                    enum: [pending, confirmed, completed, cancelled]
-                  number_of_people:
-                    type: integer
-                  date_of_visit:
+                  deleted_at:
                     type: string
                     format: date
-                  time_of_visit:
-                    type: string
-                    format: time
-                  restaurant:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                  created_at:
-                    type: string
-                    format: date-time
-              example:
-                id: 42
-                status: "confirmed"
-                number_of_people: 4
-                date_of_visit: "2025-11-20"
-                time_of_visit: "20:00"
-                restaurant:
-                  id: 1
-                  name: "Tasca da Esquina"
-                created_at: "2025-11-16T14:30:00Z"
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Not found'
-      x-permissions:
-        - USR
 
-
-  # M04: Reviews
-  /restaurants/{restaurant_id}/reviews:
-    get:
-      operationId: R401
-      summary: 'R401: View Restaurant Reviews'
-      description: 'List all reviews for restaurant. Access: VIS'
+  /api/photos/{id}:
+    delete:
+      operationId: API_R213
+      summary: 'Delete Photo API'
+      description: 'Remove photo from gallery. Access: OWN'
       tags:
-        - 'M04: Reviews'
-      parameters:
-        - in: path
-          name: restaurant_id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Show reviews list'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - VIS
-
-    post:
-      operationId: R402
-      summary: 'R402: Create Review'
-      description: 'Post a review for restaurant. Access: CUS'
-      tags:
-        - 'M04: Reviews'
-      parameters:
-        - in: path
-          name: restaurant_id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-                rating:
-                  type: integer
-                  minimum: 1
-                  maximum: 5
-              required:
-                - content
-                - rating
-      responses:
-        '302':
-          description: 'Redirect after creation'
-        '400':
-          description: 'Bad request. No completed reservation'
-        '403':
-          description: 'Forbidden. Must be customer'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - CUS
-
-  /reviews/{id}:
-    get:
-      operationId: R403
-      summary: 'R403: View Review Details'
-      description: 'Show review details. Access: VIS'
-      tags:
-        - 'M04: Reviews'
+        - 'M02: Restaurants'
       parameters:
         - in: path
           name: id
@@ -1020,42 +576,16 @@ paths:
             type: integer
           required: true
       responses:
-        '200':
-          description: 'Ok. Show review'
-        '404':
-          description: 'Review not found'
-      x-permissions:
-        - VIS
+        '204':
+          description: 'Photo deleted successfully.'
 
-  /reviews/{id}/edit:
-    get:
-      operationId: R404
-      summary: 'R404: Edit Review Form'
-      description: 'Show edit review form. Access: REV'
+  /api/admin/users/{id}/block:
+    put:
+      operationId: API_R603
+      summary: 'Block User API'
+      description: 'Toggle block status. Access: ADM'
       tags:
-        - 'M04: Reviews'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Show edit form'
-        '403':
-          description: 'Forbidden. Not your review'
-        '404':
-          description: 'Review not found'
-      x-permissions:
-        - REV
-
-    post:
-      operationId: R405
-      summary: 'R405: Edit Review Action'
-      description: 'Update review. Access: REV'
-      tags:
-        - 'M04: Reviews'
+        - 'M06: Administration'
       parameters:
         - in: path
           name: id
@@ -1063,602 +593,22 @@ paths:
             type: integer
           required: true
       requestBody:
-        required: true
         content:
-          application/x-www-form-urlencoded:
+          application/json:
             schema:
               type: object
               properties:
-                content:
-                  type: string
-                rating:
-                  type: integer
-                  minimum: 1
-                  maximum: 5
-      responses:
-        '302':
-          description: 'Redirect after update'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Review not found'
-      x-permissions:
-        - REV
-
-  /reviews/{id}/delete:
-    post:
-      operationId: R406
-      summary: 'R406: Delete Review'
-      description: 'Delete review. Access: REV, ADM'
-      tags:
-        - 'M04: Reviews'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '302':
-          description: 'Redirect after deletion'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Review not found'
-      x-permissions:
-        - REV
-        - ADM
-
-  /reviews/{review_id}/reply:
-    post:
-      operationId: R407
-      summary: 'R407: Reply to Review'
-      description: 'Owner replies to review. Access: OWN'
-      tags:
-        - 'M04: Reviews'
-      parameters:
-        - in: path
-          name: review_id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-              required:
-                - content
-      responses:
-        '302':
-          description: 'Redirect after reply'
-        '403':
-          description: 'Forbidden. Not restaurant owner'
-        '404':
-          description: 'Review not found'
-      x-permissions:
-        - OWN
-
-  /replies/{id}/edit:
-    post:
-      operationId: R408
-      summary: 'R408: Edit Reply'
-      description: 'Edit reply to review. Access: REP'
-      tags:
-        - 'M04: Reviews'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-              required:
-                - content
-      responses:
-        '302':
-          description: 'Redirect after edit'
-        '403':
-          description: 'Forbidden. Not your reply'
-        '404':
-          description: 'Reply not found'
-      x-permissions:
-        - REP
-
-  /replies/{id}/delete:
-    post:
-      operationId: R409
-      summary: 'R409: Delete Reply'
-      description: 'Delete reply. Access: REP, ADM'
-      tags:
-        - 'M04: Reviews'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '302':
-          description: 'Redirect after deletion'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Reply not found'
-      x-permissions:
-        - REP
-        - ADM
-
-  /api/restaurants/{restaurant_id}/reviews:
-    get:
-      operationId: R410
-      summary: 'R410: Get Reviews API'
-      description: 'Get restaurant reviews as JSON. Access: VIS'
-      tags:
-        - 'M04: Reviews'
-      parameters:
-        - in: path
-          name: restaurant_id
-          schema:
-            type: integer
-          required: true
-        - in: query
-          name: sort
-          description: 'Sort by: recent, rating'
-          schema:
-            type: string
-          required: false
+                is_blocked:
+                  type: boolean
       responses:
         '200':
-          description: 'Success'
+          description: 'User status updated'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    content:
-                      type: string
-                    rating:
-                      type: integer
-                    created_at:
-                      type: string
-                      format: date-time
-                    user:
-                      type: object
-                      properties:
-                        username:
-                          type: string
-                        name:
-                          type: string
-                    reply:
-                      type: object
-                      nullable: true
-                      properties:
-                        content:
-                          type: string
-                        created_at:
-                          type: string
-                          format: date-time
-              example:
-                - id: 15
-                  content: "Amazing food and great atmosphere! Highly recommend the francesinha."
-                  rating: 5
-                  created_at: "2025-11-10T19:30:00Z"
-                  user:
-                    username: "joao_silva"
-                    name: "João Silva"
-                  reply:
-                    content: "Thank you for your visit! We're glad you enjoyed it."
-                    created_at: "2025-11-11T10:00:00Z"
-                - id: 14
-                  content: "Good service but a bit pricey."
-                  rating: 4
-                  created_at: "2025-11-08T21:15:00Z"
-                  user:
-                    username: "maria_costa"
-                    name: "Maria Costa"
-                  reply: null
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - VIS
-
-  # M05: Notifications
-  /notifications:
-    get:
-      operationId: R501
-      summary: 'R501: View All Notifications'
-      description: 'List user notifications. Access: USR'
-      tags:
-        - 'M05: Notifications'
-      responses:
-        '200':
-          description: 'Ok. Show notifications list'
-        '403':
-          description: 'Forbidden. Must be authenticated'
-      x-permissions:
-        - USR
-
-  /notifications/{id}/read:
-    post:
-      operationId: R502
-      summary: 'R502: Mark Notification as Read'
-      description: 'Mark notification as viewed. Access: USR'
-      tags:
-        - 'M05: Notifications'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Marked as read'
-        '403':
-          description: 'Forbidden. Not your notification'
-        '404':
-          description: 'Notification not found'
-      x-permissions:
-        - USR
-
-  /notifications/mark-all-read:
-    post:
-      operationId: R503
-      summary: 'R503: Mark All Notifications as Read'
-      description: 'Mark all user notifications as read. Access: USR'
-      tags:
-        - 'M05: Notifications'
-      responses:
-        '200':
-          description: 'Ok. All marked as read'
-        '403':
-          description: 'Forbidden'
-      x-permissions:
-        - USR
-
-  /offers:
-    get:
-      operationId: R504
-      summary: 'R504: View All Offers'
-      description: 'List active offers. Access: VIS'
-      tags:
-        - 'M05: Notifications'
-      responses:
-        '200':
-          description: 'Ok. Show offers list'
-      x-permissions:
-        - VIS
-
-  /restaurants/{restaurant_id}/offers:
-    get:
-      operationId: R505
-      summary: 'R505: View Restaurant Offers'
-      description: 'List offers for restaurant. Access: VIS'
-      tags:
-        - 'M05: Notifications'
-      parameters:
-        - in: path
-          name: restaurant_id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Show offers'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - VIS
-
-    post:
-      operationId: R506
-      summary: 'R506: Create Offer'
-      description: 'Create new offer for restaurant. Access: OWN'
-      tags:
-        - 'M05: Notifications'
-      parameters:
-        - in: path
-          name: restaurant_id
-          schema:
-            type: integer
-          required: true
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                content:
-                  type: string
-                start_date:
-                  type: string
-                  format: date
-                end_date:
-                  type: string
-                  format: date
-              required:
-                - title
-                - start_date
-                - end_date
-      responses:
-        '302':
-          description: 'Redirect after creation'
-        '403':
-          description: 'Forbidden. Not your restaurant'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - OWN
-
-  /offers/{id}/delete:
-    post:
-      operationId: R507
-      summary: 'R507: Delete Offer'
-      description: 'Delete offer. Access: OWN'
-      tags:
-        - 'M05: Notifications'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '302':
-          description: 'Redirect after deletion'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Offer not found'
-      x-permissions:
-        - OWN
-
-  /api/notifications:
-    get:
-      operationId: R508
-      summary: 'R508: Get Notifications API'
-      description: 'Get user notifications as JSON. Access: USR'
-      tags:
-        - 'M05: Notifications'
-      parameters:
-        - in: query
-          name: unread
-          description: 'Filter unread only'
-          schema:
-            type: boolean
-          required: false
-      responses:
-        '200':
-          description: 'Success'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    type:
-                      type: string
-                      enum: [reservation, review, offer, system]
-                    content:
-                      type: string
-                    is_read:
-                      type: boolean
-                    created_at:
-                      type: string
-                      format: date-time
-                    related_id:
-                      type: integer
-                      nullable: true
-              example:
-                - id: 101
-                  type: "reservation"
-                  content: "Your reservation at Tasca da Esquina has been confirmed"
-                  is_read: false
-                  created_at: "2025-11-16T10:30:00Z"
-                  related_id: 42
-                - id: 98
-                  type: "offer"
-                  content: "New special offer: 20% off on weekdays at Marisqueira do Porto"
-                  is_read: true
-                  created_at: "2025-11-15T09:00:00Z"
-                  related_id: 7
-                - id: 95
-                  type: "review"
-                  content: "Someone replied to your review"
-                  is_read: true
-                  created_at: "2025-11-14T16:45:00Z"
-                  related_id: 15
-        '403':
-          description: 'Forbidden'
-      x-permissions:
-        - USR
-
-  # M06: Administration
-  /admin:
-    get:
-      operationId: R601
-      summary: 'R601: Admin Dashboard'
-      description: 'Show admin dashboard. Access: ADM'
-      tags:
-        - 'M06: Administration'
-      responses:
-        '200':
-          description: 'Ok. Show dashboard'
-        '403':
-          description: 'Forbidden. Must be administrator'
-      x-permissions:
-        - ADM
-
-  /admin/users:
-    get:
-      operationId: R602
-      summary: 'R602: Manage Users'
-      description: 'List all users for management. Access: ADM'
-      tags:
-        - 'M06: Administration'
-      parameters:
-        - in: query
-          name: search
-          description: 'Search by username or email'
-          schema:
-            type: string
-          required: false
-        - in: query
-          name: role
-          description: 'Filter by role'
-          schema:
-            type: string
-            enum: [customer, owner, administrator]
-          required: false
-      responses:
-        '200':
-          description: 'Ok. Show users list'
-        '403':
-          description: 'Forbidden'
-      x-permissions:
-        - ADM
-
-  /admin/users/{id}/block:
-    post:
-      operationId: R603
-      summary: 'R603: Block User'
-      description: 'Block user account. Access: ADM'
-      tags:
-        - 'M06: Administration'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. User blocked'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'User not found'
-      x-permissions:
-        - ADM
-
-  /admin/users/{id}/unblock:
-    post:
-      operationId: R604
-      summary: 'R604: Unblock User'
-      description: 'Unblock user account. Access: ADM'
-      tags:
-        - 'M06: Administration'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. User unblocked'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'User not found'
-      x-permissions:
-        - ADM
-
-  /admin/restaurants:
-    get:
-      operationId: R605
-      summary: 'R605: Manage Restaurants'
-      description: 'List all restaurants for admin. Access: ADM'
-      tags:
-        - 'M06: Administration'
-      parameters:
-        - in: query
-          name: search
-          description: 'Search restaurants'
-          schema:
-            type: string
-          required: false
-      responses:
-        '200':
-          description: 'Ok. Show restaurants list'
-        '403':
-          description: 'Forbidden'
-      x-permissions:
-        - ADM
-
-  /admin/restaurants/{id}/close:
-    post:
-      operationId: R606
-      summary: 'R606: Close Restaurant'
-      description: 'Close/archive restaurant. Access: ADM'
-      tags:
-        - 'M06: Administration'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Ok. Restaurant closed'
-        '403':
-          description: 'Forbidden'
-        '404':
-          description: 'Restaurant not found'
-      x-permissions:
-        - ADM
-
-  /admin/reviews:
-    get:
-      operationId: R607
-      summary: 'R607: Manage Reviews'
-      description: 'List all reviews for moderation. Access: ADM'
-      tags:
-        - 'M06: Administration'
-      responses:
-        '200':
-          description: 'Ok. Show reviews list'
-        '403':
-          description: 'Forbidden'
-      x-permissions:
-        - ADM
-
-  /admin/reports:
-    get:
-      operationId: R608
-      summary: 'R608: View Reports'
-      description: 'View system reports and statistics. Access: ADM'
-      tags:
-        - 'M06: Administration'
-      responses:
-        '200':
-          description: 'Ok. Show reports'
-        '403':
-          description: 'Forbidden'
-      x-permissions:
-        - ADM
-
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  is_blocked:
+                    type: boolean
