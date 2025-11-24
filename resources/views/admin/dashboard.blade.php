@@ -32,6 +32,6 @@
         </div>
     </div>
 
-    <a class="button" href="{{ route('admin.users') }}">Manage Users (US48/49)</a>
+    <a class="button" href="{{ route('admin.users') }}">Manage Users</a>
 </div>
 @endsection
