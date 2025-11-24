@@ -5,16 +5,14 @@ info:
   title: 'EatZy Booking Web API'
   description: >-
     Web Resources Specification (A7) for EatZy Booking.
-    This specification includes both:
-    1. Web UI Routes (Form submissions, Redirections 302)
-    2. REST API Routes (JSON responses, Status 200/201/204, using GET/POST/PUT/DELETE)
+    Includes Web UI Routes (HTTP 302 Redirects) and REST API Routes (JSON).
 
 servers:
   - url: http://lbaw25145.lbaw.fe.up.pt
     description: Production server
 
 externalDocs:
-  description: Project Wiki and Documentation
+  description: Project Wiki
   url: https://git.fe.up.pt/lbaw/lbaw2425/lbaw25145/-/wikis/home
 
 tags:
@@ -33,7 +31,7 @@ paths:
     get:
       operationId: R101
       summary: 'R101: Login Form'
-      description: 'Provide login form. Access: VIS (Public)'
+      description: 'Provide login form. Access: VIS'
       tags:
         - 'M01: Authentication'
       responses:
@@ -68,7 +66,11 @@ paths:
             Location:
               schema:
                 type: string
-                example: '/restaurants'
+              examples:
+                302Success:
+                  value: '/restaurants'
+                302Error:
+                  value: '/login'
 
   /logout:
     post:
@@ -105,7 +107,7 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data: # Multipart to allow profile picture upload (R01)
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -121,13 +123,14 @@ paths:
                   type: string
                 password_confirmation:
                   type: string
-                profile_picture:
+                role:
                   type: string
-                  format: binary
+                  enum: ['customer', 'owner']
               required:
                 - email
                 - password
                 - username
+                - role
       responses:
         '302':
           description: 'Redirect to home page after registration.'
@@ -185,7 +188,7 @@ paths:
     post:
       operationId: R109
       summary: 'R109: Delete Account'
-      description: 'Soft-delete account (Anonymization per BR01/TRIGGER01). Access: OWN'
+      description: 'Delete account (Hard Delete with Anonymization). Access: OWN'
       tags:
         - 'M01: Authentication'
       parameters:
@@ -205,13 +208,13 @@ paths:
     get:
       operationId: R201
       summary: 'R201: Browse Restaurants'
-      description: 'List restaurants with search filters (IDX04). Access: VIS'
+      description: 'List restaurants with search filters. Access: VIS'
       tags:
         - 'M02: Restaurants'
       parameters:
         - in: query
           name: search
-          description: Full text search (name, description)
+          description: Full text search
           schema:
             type: string
         - in: query
@@ -255,7 +258,6 @@ paths:
                   type: string
                 capacity:
                   type: integer
-                # R10: Photos
                 photos:
                   type: array
                   items:
@@ -283,7 +285,7 @@ paths:
           description: 'Ok. Show details UI.'
 
   # ============================================================
-  # M03: Reservations (UI & Logic)
+  # M03: Reservations
   # ============================================================
   /restaurants/{id}/reserve:
     get:
@@ -304,7 +306,7 @@ paths:
     post:
       operationId: R303
       summary: 'R303: Make Reservation Action'
-      description: 'Attempts to create reservation (Uses F01, TRAN01). Access: CUS'
+      description: 'Attempts to create reservation. Access: CUS'
       tags:
         - 'M03: Reservations'
       parameters:
@@ -329,7 +331,7 @@ paths:
                   type: integer
       responses:
         '302':
-          description: 'Success: Redirect to reservations list. Failure: Redirect to form with errors.'
+          description: 'Success: Redirect to reservations list.'
 
   /reservations:
     get:
@@ -343,13 +345,13 @@ paths:
           description: 'Ok. Show history UI.'
 
   # ============================================================
-  # M04: Reviews (UI)
+  # M04: Reviews
   # ============================================================
   /restaurants/{id}/reviews:
     post:
       operationId: R402
       summary: 'R402: Post Review Action'
-      description: 'Submit review. Triggers check (TRIGGER02) for completed reservation. Access: CUS'
+      description: 'Submit review. Access: CUS'
       tags:
         - 'M04: Reviews'
       parameters:
@@ -420,8 +422,59 @@ paths:
           description: 'Redirect to restaurant dashboard.'
 
   # ============================================================
-  # API ROUTES (RESTful JSON) - Satisfying "More HTTP Methods"
-  # These routes are designed for AJAX/Fetch calls or Mobile App
+  # M06: Administration
+  # ============================================================
+  /admin:
+    get:
+      operationId: R601
+      summary: 'R601: Admin Dashboard'
+      description: 'View admin statistics and links. Access: ADM'
+      tags:
+        - 'M06: Administration'
+      responses:
+        '200':
+          description: 'Ok. Show dashboard UI.'
+
+  /admin/users:
+    get:
+      operationId: R602
+      summary: 'R602: List Users'
+      description: 'Browse and search all users. Access: ADM'
+      tags:
+        - 'M06: Administration'
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: ['customer', 'owner', 'admin']
+      responses:
+        '200':
+          description: 'Ok. Show user list UI.'
+
+  /admin/users/{id}:
+    delete:
+      operationId: R603
+      summary: 'R603: Delete User (Admin)'
+      description: 'Admin action to delete a user account. Access: ADM'
+      tags:
+        - 'M06: Administration'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '302':
+          description: 'Redirect to user list with success message.'
+
+  # ============================================================
+  # API ROUTES (RESTful JSON)
   # ============================================================
 
   /api/restaurants:
@@ -458,14 +511,12 @@ paths:
                       type: string
                     rating:
                       type: number
-                    location:
-                      type: string
 
   /api/reservations/{id}:
     put:
       operationId: API_R306
       summary: 'Update Reservation API'
-      description: 'Modify reservation details (Uses TRAN06). Access: CUS'
+      description: 'Modify reservation details via API. Access: CUS'
       tags:
         - 'M03: Reservations'
       parameters:
@@ -488,14 +539,14 @@ paths:
                   format: time
       responses:
         '200':
-          description: 'Reservation updated successfully'
+          description: 'Reservation updated'
         '403':
-          description: 'Forbidden (e.g. trying to edit past reservation)'
+          description: 'Forbidden'
     
     delete:
       operationId: API_R314
       summary: 'Cancel Reservation API'
-      description: 'Cancels/Soft-deletes reservation (TRAN10). Access: CUS'
+      description: 'Cancels reservation via API. Access: CUS'
       tags:
         - 'M03: Reservations'
       parameters:
@@ -507,62 +558,12 @@ paths:
       responses:
         '204':
           description: 'No Content. Reservation cancelled.'
-        '404':
-          description: 'Reservation not found.'
-
-    post:
-      operationId: API_R315
-      summary: 'R315: Confirm a reservation'
-      description: 'Allows restaurant owner to confirm a pending reservation. Access: OWN'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '302':
-          description: 'Success. Redirected back to reservation list'
-        '403':
-          description: 'Forbidden. User is not the owner or cannot confirm reservation'
-        '404':
-          description: 'Not Found. Reservation does not exist'
-
-
-    
-
-  /api/waitlist/{id}:
-    delete:
-      operationId: API_R312
-      summary: 'Leave Waitlist API'
-      description: 'Remove entry from waitlist. Access: CUS'
-      tags:
-        - 'M03: Reservations'
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-      responses:
-        '200':
-          description: 'Removed from waitlist'
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: 'removed'
 
   /api/reviews/{id}:
     delete:
       operationId: API_R406
       summary: 'Delete Review API'
-      description: 'Delete a review. Access: ADM or Review Owner'
+      description: 'Delete a review via API. Access: ADM or Review Owner'
       tags:
         - 'M04: Reviews'
       parameters:
@@ -574,22 +575,12 @@ paths:
       responses:
         '200':
           description: 'Review deleted'
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  deleted_at:
-                    type: string
-                    format: date
 
   /api/photos/{id}:
     delete:
       operationId: API_R213
       summary: 'Delete Photo API'
-      description: 'Remove photo from gallery. Access: OWN'
+      description: 'Remove photo from gallery via API. Access: OWN'
       tags:
         - 'M02: Restaurants'
       parameters:
@@ -606,7 +597,7 @@ paths:
     put:
       operationId: API_R603
       summary: 'Block User API'
-      description: 'Toggle block status. Access: ADM'
+      description: 'Toggle block status via API. Access: ADM'
       tags:
         - 'M06: Administration'
       parameters:
@@ -626,12 +617,3 @@ paths:
       responses:
         '200':
           description: 'User status updated'
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  is_blocked:
-                    type: boolean
