@@ -32,11 +32,15 @@ class ReservationController extends Controller
 
             $query = Reservation::query()
                 ->where('restaurant_id', $selectedRestaurant)
+                ->whereNotNull('user_id')
+                ->whereNotNull('restaurant_id')
                 ->with(['restaurant', 'user']);
 
         } else {
             $query = Reservation::query()
                 ->where('user_id', $user->id)
+                ->whereNotNull('user_id')
+                ->whereNotNull('restaurant_id')
                 ->with(['restaurant', 'user']);
         }
         
