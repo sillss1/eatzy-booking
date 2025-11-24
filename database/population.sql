@@ -92,8 +92,8 @@ INSERT INTO reservation (user_id, restaurant_id, number_of_people, date_of_visit
 (7, 4, 2, '2025-12-24', '13:30:00', true, false, '2025-11-12 16:12:14');
 
 INSERT INTO reservation (user_id, restaurant_id, number_of_people, date_of_visit, time_of_visit, is_confirmed, is_completed, title, description, created_at) VALUES
-(7, 4, 7, '2025-12-18', '13:00:00', false, true, 'Jantar with Jabba', 'Yummm', '2025-11-10 19:30:00'),
-(7, 4, 2, '2025-12-13', '12:30:00', true, false, 'Lunch with Vernon Roche', 'For Temeria', '2025-11-05 23:32:00'),
+(7, 4, 7, '2025-12-18', '13:00:00', false, true, 'Jantar with Jabba', 'We would like to be seated next to a window', '2025-11-10 19:30:00'),
+(7, 4, 2, '2025-12-13', '12:30:00', true, false, 'Lunch with Vernon Roche', 'We love to come to your place!', '2025-11-05 23:32:00'),
 (7, 4, 4, '2025-12-25', '13:00:00', false, false, 'Lone fine dining experience', NULL, '2025-12-10 14:11:00');
 
 -- 6. REVIEWS & REPLIES

@@ -24,14 +24,14 @@
 
             <nav style="display: flex; gap: 1rem;">
                 @guest
-                    <div style="margin-right: 750px;">
+                    <div style="margin-right: auto;">
                         <a class="button" href="{{ route('about') }}">About</a>
                         <a class="button" href="{{ route('faq') }}">FAQ</a>
                     </div>
                     <a class="button" href="{{ route('login') }}">Login</a>
                     <a class="button" href="{{ route('register') }}">Register</a>
                 @else
-                    <div style="margin-right: 750px;">
+                    <div style="margin-right: auto;">
                         <a class="button" href="{{ route('about') }}">About</a>
                         <a class="button" href="{{ route('faq') }}">FAQ</a>
                     </div>

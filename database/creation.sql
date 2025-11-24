@@ -218,7 +218,8 @@ BEGIN
          IF (NEW.name <> OLD.name OR NEW.description <> OLD.description) THEN
            NEW.tsvectors = (
              setweight(to_tsvector('english', NEW.name), 'A') ||
-             setweight(to_tsvector('english', NEW.description), 'B')
+             setweight(to_tsvector('english', NEW.description), 'B') ||
+             setweight(to_tsvector('english', NEW.location), 'C')
            );
          END IF;
  END IF;
@@ -232,42 +233,6 @@ CREATE TRIGGER restaurant_search_update
  EXECUTE PROCEDURE restaurant_search_update();
 
 CREATE INDEX restaurant_search_idx ON restaurant USING GIN (tsvectors);
-
-/*
-CREATE OR REPLACE FUNCTION archive_user_data() 
-RETURNS TRIGGER AS $$
-BEGIN
-    UPDATE "review" 
-    WHERE user_id = OLD.id;
-
-    UPDATE "reply" 
-    WHERE user_id = OLD.id;
- 
-    UPDATE "reservation" 
-    WHERE user_id = OLD.id;
-
-    UPDATE "waitlist" 
-    WHERE user_id = OLD.id;
-
-    DELETE FROM "favourite" 
-    WHERE user_id = OLD.id;
-
-    UPDATE "notification" 
-    WHERE user_id = OLD.id;
-
-    NEW.deleted_at = CURRENT_TIMESTAMP;
-    
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-CREATE TRIGGER user_archive_trigger
-BEFORE UPDATE ON "user"
-FOR EACH ROW
-WHEN (OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL)
-EXECUTE FUNCTION archive_user_data();
-*/
 
 CREATE OR REPLACE FUNCTION check_completed_reservation_before_review()
 RETURNS TRIGGER AS $$
