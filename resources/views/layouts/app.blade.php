@@ -42,6 +42,9 @@
                     <a class="button" href="{{ route('account') }}">{{ Auth::user()->name }}</a>
                     <a class="button" href="{{ route('about') }}">About</a>
                     <a class="button" href="{{ route('faq') }}">FAQ</a>
+                        @if (Auth::user()->isAdmin())
+                            <a class="button" style="background-color: #333; border-color: #333;" href="{{ route('admin.dashboard') }}">Admin Panel</a>
+                        @endif
                 @endguest
             </nav>
         </header>

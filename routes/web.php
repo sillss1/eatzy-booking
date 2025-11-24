@@ -26,6 +26,21 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/register', 'register');
     Route::get('/logout', 'logout')->name('logout');
 });
+// -------------------------------------
+// ADMIN PANEL (US47, US48, US49, US50)
+// -------------------------------------
+// Agora usamos 'auth' E 'is_admin'
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
+    // Dashboard
+    Route::get('/', [App\Http\Controllers\AdminController::class, 'index'])
+        ->name('admin.dashboard');
+    // User Management
+    Route::get('/users', [App\Http\Controllers\AdminController::class, 'listUsers'])
+        ->name('admin.users');
+    // Delete User Action
+    Route::delete('/users/{id}', [App\Http\Controllers\AdminController::class, 'deleteUser'])
+        ->name('admin.users.delete');
+});
 
 // -------------------------------------
 // Static Pages (US08, US09)
