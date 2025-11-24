@@ -9,19 +9,31 @@ use Carbon\Carbon;
 
 class RestaurantController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
+       $query = Restaurant::active();
+
         if ($user && $user->isOwner()) {
-            $restaurants = Restaurant::active()
-                ->where('owner_id', $user->id)
-                ->orderBy('name')
-                ->paginate(10);
-        } else {
-            $restaurants = Restaurant::active()
-                ->orderBy('name')
-                ->paginate(10);
+            $query->where('owner_id', $user->id);
+        }
+
+        $search = trim($request->get('search'));
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'ILIKE', "%{$search}%")
+                ->orWhere('description', 'ILIKE', "%{$search}%")
+                ->orWhere('address', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $restaurants = $query->orderBy('name')->paginate(10);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('restaurants._list', compact('restaurants'))->render()
+            ]);
         }
 
         return view('restaurants.index', compact('restaurants'));

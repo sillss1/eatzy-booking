@@ -8,7 +8,7 @@
     <h3>Danger Zone</h3>
     <p>Once you delete your account, there is no going back. Please be certain.</p>
         @if($errors->any())
-            <div style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 10px;">
+            <div style>
                 {{ $errors->first() }}
             </div>
         @endif

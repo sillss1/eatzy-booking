@@ -5,25 +5,32 @@
 @section('content')
     <h2>Restaurants</h2>
 
-    @if($restaurants->isEmpty())
-        <p>No restaurants found.</p>
-    @else
-        <ul>
-            @foreach ($restaurants as $restaurant)
-                <li style="margin-bottom: 1rem;">
-                    {{-- Link para os detalhes (US05) --}}
-                    <a href="{{ route('restaurants.show', $restaurant->id) }}">
-                        <strong>{{ $restaurant->name }}</strong>
-                    </a><br>
+    <label for="search">Search Restaurants:</label>
+    <input type="text" id="search" placeholder="Search by name, description or address">
 
-                    {{-- Descrição resumida --}}
-                    <span>{{ \Illuminate\Support\Str::limit($restaurant->description, 120) }}</span><br>
-
-                    <small>{{ $restaurant->address }}</small>
-                </li>
-            @endforeach
-        </ul>
-
-        
-    @endif
+    <div id="restaurant-list">
+        @include('restaurants._list', ['restaurants' => $restaurants])
+    </div>
 @endsection
+
+@push('scripts')
+<script>
+const searchInput = document.querySelector('#search');
+const restaurantList = document.querySelector('#restaurant-list');
+
+let timeout = null;
+
+searchInput.addEventListener('input', function() {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        const query = new URLSearchParams({ search: searchInput.value });
+        fetch("{{ route('restaurants.index') }}?" + query, {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(r => r.json())
+        .then(data => {
+            restaurantList.innerHTML = data.html;
+        });}, 225); 
+});
+</script>
+@endpush
