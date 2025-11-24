@@ -30,11 +30,11 @@ class Restaurant extends Model
 
     protected $casts = [
         'opening_hours' => 'array',
-        'created_at'    => 'datetime',
-        'updated_at'    => 'datetime',
-        'closed_at'     => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime', 
+        'closed_at' => 'datetime'
     ];
-
+   
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
@@ -73,4 +73,5 @@ class Restaurant extends Model
 
         return $formatted;
     }
+
 }

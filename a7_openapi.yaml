@@ -510,6 +510,29 @@ paths:
         '404':
           description: 'Reservation not found.'
 
+    post:
+      operationId: API_R315
+      summary: 'R315: Confirm a reservation'
+      description: 'Allows restaurant owner to confirm a pending reservation. Access: OWN'
+      tags:
+        - 'M03: Reservations'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '302':
+          description: 'Success. Redirected back to reservation list'
+        '403':
+          description: 'Forbidden. User is not the owner or cannot confirm reservation'
+        '404':
+          description: 'Not Found. Reservation does not exist'
+
+
+    
+
   /api/waitlist/{id}:
     delete:
       operationId: API_R312

@@ -16,6 +16,16 @@
     </p>
     <p><strong>Date & Time:</strong> {{ $reservation->date_of_visit }} at {{ $reservation->time_of_visit }}</p>
     <p><strong>Number of People:</strong> {{ $reservation->number_of_people }}</p>
+    @if ($reservation->restaurant->owner_id == Auth::id())
+        @php
+            $key = $reservation->restaurant_id.'|'.$reservation->date_of_visit;
+            $taken = $capacityMap[$key] ?? 0;
+            $total = $reservation->restaurant->capacity;
+            $left = max($total - $taken, 0);
+        @endphp
+
+    <p><strong>Current restaurant capacity: </strong>{{ $left }}/{{ $total }}</p>
+    @endif
     <p><strong>Description:</strong> {{ $reservation->description ?? '-' }}</p>
     <p><strong>Status:</strong> {{ ucfirst($reservation->status) }}</p>
     <p><strong>Created At:</strong> {{ $reservation->created_at }}</p>
@@ -24,16 +34,39 @@
     @endif
 </div>
 
-@if ((Auth::id() === $reservation->user_id || Auth::user()->isAdmin()) && $reservation->is_cancellable)
+@if (Auth::id() === $reservation->user_id && $reservation->is_modifiable)
     <form action="{{ route('reservations.cancel', $reservation->id) }}" method="POST" style="display:inline;">
         @csrf
         <button type="submit" onclick="return confirm('Are you sure you want to cancel this reservation? This action cannot be reversed')">
             Cancel Reservation
         </button>
     </form>
+@elseif($reservation->is_modifiable && (Auth::user()->isAdmin() || (Auth::user()->isOwner() && $reservation->restaurant->owner_id == Auth::id())))
+    @if($reservation->status === 'pending')
+        <form method="POST" action="{{ route('reservations.confirm', $reservation->id) }}" style="display:inline">
+            @csrf
+            <button type="submit" onclick="return confirm('Are you sure you want to confirm this reservation?')">
+                Confirm
+            </button>
+        </form>
+        <form method="POST" action="{{ route('reservations.cancel', $reservation->id) }}" style="display:inline">
+            @csrf
+            <button type="submit" onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                Refuse
+            </button>
+        </form>
+    @elseif($reservation->status === 'confirmed')
+        <form method="POST" action="{{ route('reservations.cancel', $reservation->id) }}" style="display:inline">
+            @csrf
+            <button type="submit" onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                Refuse
+            </button>
+        </form>
+    @endif
 @endif
 
-@if (($reservation->user_id === Auth::id() || Auth::user()->isAdmin()) && $reservation->is_editable)
+
+@if (($reservation->user_id === Auth::id() || Auth::user()->isAdmin()) && $reservation->is_modifiable)
     <form action="{{ route('reservations.edit', $reservation->id) }}" method="GET" style="display:inline;">
         <button type="submit">Edit Reservation</button>
     </form>
@@ -49,8 +82,11 @@
     </form>
 @endif
 
+@if (Auth::id() === $reservation->user_id || Auth::user()->isAdmin())
 <h2>Restaurant Info</h2>
 @include('restaurants._show', ['restaurant' => $reservation->restaurant])
+@endif
+
 @endsection
 @if ($errors->any())
     <div>

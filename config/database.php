@@ -94,7 +94,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => env('DB_SCHEMA', 'public'),
-            'search_path' => env('DB_SCHEMA', 'public'),
+            'search_path' => 'lbaw25145',
             'options' => [
             PDO::ATTR_EMULATE_PREPARES => true,
             ],
