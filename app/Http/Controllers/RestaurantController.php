@@ -14,9 +14,14 @@ class RestaurantController extends Controller
         $user = Auth::user();
 
         if ($user && $user->isOwner()) {
-            $restaurants = Restaurant::where('owner_id', $user->id)->orderBy('name')->paginate(10);
+            $restaurants = Restaurant::active()
+                ->where('owner_id', $user->id)
+                ->orderBy('name')
+                ->paginate(10);
         } else {
-            $restaurants = Restaurant::active()->orderBy('name')->paginate(10);
+            $restaurants = Restaurant::active()
+                ->orderBy('name')
+                ->paginate(10);
         }
 
         return view('restaurants.index', compact('restaurants'));
