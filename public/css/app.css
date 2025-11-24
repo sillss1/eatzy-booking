@@ -12,13 +12,11 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-
 main {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
-
 
 #content {
   width: 100%;
@@ -27,17 +25,16 @@ main {
   padding: 0 1.5rem;
 }
 
-
 main > header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  background: linear-gradient(135deg, #9b4dca, #a855f7);
-  color: #f9fafb;
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  color: #ecfeff;
   padding: 1.4rem 1.8rem;
   margin: 0;
-  box-shadow: 0 12px 30px rgba(88, 28, 135, 0.4);
+  box-shadow: 0 12px 30px rgba(13, 148, 136, 0.4);
 }
 
 main > header h1 {
@@ -75,9 +72,9 @@ button,
 input[type='button'],
 input[type='reset'],
 input[type='submit'] {
-  background-color: #9b4dca;
-  border-color: #9b4dca;
-  color: #f9fafb;
+  background-color: #14b8a6;
+  border-color: #14b8a6;
+  color: #ecfeff;
   border-radius: 999px;
   padding: 0.55rem 1.4rem;
   font-size: 1.2rem;
@@ -87,7 +84,7 @@ input[type='submit'] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 18px rgba(88, 28, 135, 0.35);
+  box-shadow: 0 8px 18px rgba(20, 184, 166, 0.35);
   transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
 
@@ -95,11 +92,11 @@ input[type='submit'] {
 button:hover,
 input[type='submit']:hover,
 input[type='button']:hover {
-  background-color: #7c3aed;
-  border-color: #7c3aed;
-  color: #f9fafb;
+  background-color: #0d9488;
+  border-color: #0d9488;
+  color: #ecfeff;
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(76, 29, 149, 0.45);
+  box-shadow: 0 12px 24px rgba(13, 148, 136, 0.45);
 }
 
 .button:active,
@@ -107,24 +104,23 @@ button:active,
 input[type='submit']:active,
 input[type='button']:active {
   transform: translateY(0);
-  box-shadow: 0 6px 12px rgba(88, 28, 135, 0.3);
+  box-shadow: 0 6px 12px rgba(20, 184, 166, 0.3);
 }
 
 a.button.button-outline {
   background-color: transparent;
-  color: #9b4dca;
-  border-color: #9b4dca;
+  color: #14b8a6;
+  border-color: #14b8a6;
   box-shadow: none;
 }
 
 a {
-  color: #7c3aed;
+  color: #0f766e;
 }
 
 a:hover {
-  color: #4c1d95;
+  color: #0a4f49;
 }
-
 
 #content h1,
 #content h2,
@@ -150,8 +146,6 @@ a:hover {
   color: #4b5563;
   line-height: 1.6;
 }
-
-
 
 .alert {
   padding: 0.75rem 1rem;
@@ -181,14 +175,13 @@ a:hover {
   color: #b91c1c;
 }
 
-
 #content > form,
 form.card-form {
   margin: 1.5rem auto 0 auto;
   padding: 1.5rem 1.6rem 1.7rem;
   max-width: 480px;
   border-radius: 0.9rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #d1fae5;
   background-color: #ffffff;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
 }
@@ -196,19 +189,19 @@ form.card-form {
 #content label {
   font-weight: 500;
   font-size: 1.5rem;
-  color: #374151;
+  color: #115e59;
 }
 
 #content > form input,
 #content > form textarea,
 form.card-form input,
 form.card-form textarea {
-  background-color: #f9fafb;
+  background-color: #ecfeff;
   border-radius: 0.7rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #99f6e4;
   padding: 0.55rem 0.7rem;
   font-size: 0.95rem;
-  color: #111827;
+  color: #0f172a;
   transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
 
@@ -218,13 +211,13 @@ form.card-form input:focus,
 form.card-form textarea:focus {
   background-color: #ffffff;
   outline: none;
-  border-color: #9b4dca;
-  box-shadow: 0 0 0 3px rgba(155, 77, 202, 0.25);
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.25);
 }
 
 #content > form .success {
   font-weight: 600;
-  color: #16a34a;
+  color: #15803d;
 }
 
 .form-actions {
@@ -234,7 +227,6 @@ form.card-form textarea:focus {
   gap: 0.75rem;
   justify-content: flex-end;
 }
-
 
 .restaurant-list,
 #cards {
@@ -251,7 +243,7 @@ form.card-form textarea:focus {
   background-color: #ffffff;
   padding: 1.2rem 1.3rem;
   border-radius: 0.9rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #ccfbf1;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
   transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
@@ -260,7 +252,7 @@ form.card-form textarea:focus {
 #cards article.card:hover {
   transform: translateY(-3px);
   box-shadow: 0 16px 35px rgba(15, 23, 42, 0.12);
-  border-color: #c4b5fd;
+  border-color: #5eead4;
 }
 
 .restaurant-card h3,
@@ -290,7 +282,6 @@ form.card-form textarea:focus {
   gap: 0.5rem;
 }
 
-
 #cards article.card header a.delete {
   font-size: 2rem;
   margin-left: 0.5rem;
@@ -304,8 +295,6 @@ form.card-form textarea:focus {
   opacity: 1;
 }
 
-
-
 table {
   background-color: #ffffff;
   border-radius: 0.9rem;
@@ -315,7 +304,7 @@ table {
 }
 
 table thead {
-  background-color: #eef2ff;
+  background-color: #e0f2fe;
 }
 
 table th,
@@ -327,8 +316,6 @@ table td {
 table tbody tr:hover {
   background-color: #f9fafb;
 }
-
-
 
 .auth-card {
   max-width: 420px;
@@ -350,7 +337,6 @@ table tbody tr:hover {
   font-size: 0.9rem;
   color: #6b7280;
 }
-
 
 @media (max-width: 70em) {
   main > header {
