@@ -63,6 +63,21 @@ class RestaurantController extends Controller
 
         $opening_hours = $this->buildOpeningHoursFromRequest($request);
 
+        $hasAtLeastOneDayOpen = false;
+        foreach ($opening_hours as $hours) {
+            if (!empty($hours)) {
+                $hasAtLeastOneDayOpen = true;
+                break;
+            }
+        }
+
+        if (!$hasAtLeastOneDayOpen) {
+            return back()
+                ->withErrors(['opening_hours' => 'The restaurant must be open at least one day per week.'])
+                ->withInput();
+        }
+
+
         Restaurant::create([
             'owner_id'      => $user->id,
             'name'          => $validated['name'],
@@ -114,6 +129,22 @@ class RestaurantController extends Controller
         ]);
 
         $opening_hours = $this->buildOpeningHoursFromRequest($request);
+
+        $hasAtLeastOneDayOpen = false;
+        foreach ($opening_hours as $hours) {
+            if (!empty($hours)) {
+                $hasAtLeastOneDayOpen = true;
+                break;
+            }
+        }
+
+        if (!$hasAtLeastOneDayOpen) {
+            return back()
+                ->withErrors(['opening_hours' => 'The restaurant must be open at least one day per week.'])
+                ->withInput();
+        }
+
+
 
         $restaurant->update([
             'name'          => $validated['name'],
