@@ -36,25 +36,39 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        // 1. Validação
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:250',
             'surname' => 'required|string|max:250',
             'username' => 'required|string|max:250|unique:user',
             'email' => 'required|email|max:250|unique:user',
-            'password' => 'required|min:8|confirmed'
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:customer,owner', // Validate role
         ]);
 
-        // 2. Criação do Utilizador
-        User::create([
-            'name' => $request->name,
-            'surname' => $request->surname,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+        // 1. Create the Base User
+        $user = User::create([
+            'name' => $validated['name'],
+            'surname' => $validated['surname'],
+            'username' => $validated['username'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
             'joined_at' => now(),
         ]);
-        return redirect('/restaurants');
+
+        // 2. Assign Role (Insert into specific table)
+        if ($validated['role'] === 'owner') {
+            \DB::table('owner')->insert(['id' => $user->id]);
+        } else {
+            \DB::table('customer')->insert(['id' => $user->id]);
+        }
+
+        Auth::login($user);
+
+        // Redirect based on role
+        if (method_exists($user, 'isOwner') && $user->isOwner()) {
+            return redirect('/restaurants')->with('success', 'Owner account created!');
+        }
+        return redirect('/restaurants')->with('success', 'Customer account created!');
     }
 
     public function logout(Request $request)

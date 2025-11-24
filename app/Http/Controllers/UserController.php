@@ -15,34 +15,42 @@ class UserController extends Controller
         $user = Auth::user();
 
         if ($user) {
-            try {
-                // BR01: Anonimizar dados antes de apagar fisicamente
-                DB::transaction(function () use ($user) {
-                    // 1. Anonimizar conteúdos públicos (meter user_id a NULL)
-                    // Nota: As colunas user_id nestas tabelas têm de aceitar NULL na BD
-                    DB::table('review')->where('user_id', $user->id)->update(['user_id' => null]);
-                    DB::table('reply')->where('user_id', $user->id)->update(['user_id' => null]);
-                    DB::table('reservation')->where('user_id', $user->id)->update(['user_id' => null]);
-                    DB::table('waitlist')->where('user_id', $user->id)->update(['user_id' => null]);
-                    DB::table('notification')->where('user_id', $user->id)->update(['user_id' => null]);
-                    // Se for Owner, pode querer anonimizar restaurantes
-                    // DB::table('restaurant')->where('owner_id', $user->id)->update(['owner_id' => null]);
+            if ($user) {
+                try {
+                    DB::transaction(function () use ($user) {
+                        // 1. Anonymize Data (Set user_id to NULL)
+                        DB::table('review')->where('user_id', $user->id)->update(['user_id' => null]);
+                        DB::table('reply')->where('user_id', $user->id)->update(['user_id' => null]);
+                        DB::table('reservation')->where('user_id', $user->id)->update(['user_id' => null]);
+                        DB::table('waitlist')->where('user_id', $user->id)->update(['user_id' => null]);
+                        DB::table('notification')->where('user_id', $user->id)->update(['user_id' => null]);
 
-                    // 2. Apagar dados privados
-                    DB::table('favourite')->where('user_id', $user->id)->delete();
+                        // 2. Hard Delete Private Data
+                        DB::table('favourite')->where('user_id', $user->id)->delete();
 
-                    // 3. TRUE DELETE
-                    $user->delete();
-                });
+                        // 3. Handle Roles (Explicitly delete from role tables just in case)
+                        DB::table('customer')->where('id', $user->id)->delete();
+                        DB::table('owner')->where('id', $user->id)->delete();
+                        DB::table('administrator')->where('id', $user->id)->delete();
 
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
+                        // 4. Finally delete the User
+                        DB::table('user')->where('id', $user->id)->delete();
+                    });
 
-                return redirect('/login')->with('success', 'Account permanently deleted.');
-            } catch (\Exception $e) {
-                // Caso dê erro (ex: violação de constraint NOT NULL)
-                return back()->withErrors(['error' => 'Could not delete account: ' . $e->getMessage()]);
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    return redirect('/login')->with('success', 'Account deleted successfully.');
+
+                } catch (\Exception $e) {
+                    // LOG THE ERROR so you can see it in laravel.log
+                    \Log::error('Delete Account Failed: ' . $e->getMessage());
+                    // Return the error to the view
+                    return back()->withErrors(['msg' => 'Error deleting account: ' . $e->getMessage()]);
+                }
+            }
+            return redirect('/login');
             }
         }
 

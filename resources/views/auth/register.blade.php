@@ -16,7 +16,7 @@
         </div>
         <div>
             <label for="surname">Surname</label>
-            <input type="text" name="surname" id="surname" required>
+            <input type="text" name="surname" id="surname" value="{{ old('surname') }}" required>
         </div>
         <div>
             <label for="username">Username</label>
@@ -39,6 +39,20 @@
               <span id="password-error" class="error" role="alert">{{ $message }}</span>
             @enderror
         </div>
+
+        <!-- Role Selection -->
+        <div>
+            <label>Account Type</label>
+            <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                <label style="font-weight: normal;">
+                    <input type="radio" name="role" value="customer" checked> Customer (I want to book)
+                </label>
+                <label style="font-weight: normal;">
+                    <input type="radio" name="role" value="owner"> Owner (I have a restaurant)
+                </label>
+            </div>
+        </div>
+
         <div>
             <label for="password_confirmation">Confirm Password</label>
             <input type="password" name="password_confirmation" id="password_confirmation" required autocomplete="new-password">
