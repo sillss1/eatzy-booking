@@ -7,7 +7,12 @@
     <hr>
     <h3>Danger Zone</h3>
     <p>Once you delete your account, there is no going back. Please be certain.</p>
-    <form action="{{ route('user.delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account?');">
+        @if($errors->any())
+            <div style="color: red; border: 1px solid red; padding: 10px; margin-bottom: 10px;">
+                {{ $errors->first() }}
+            </div>
+        @endif
+        <form action="{{ route('user.delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account?');">
         @csrf
         @method('DELETE')
         <button type="submit" style="background-color: red; border-color: red;">Delete My Account</button>

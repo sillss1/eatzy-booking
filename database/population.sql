@@ -97,6 +97,8 @@ INSERT INTO reservation (user_id, restaurant_id, number_of_people, date_of_visit
 (7, 4, 4, '2025-12-25', '13:00:00', false, false, 'Lone fine dining experience', NULL, '2025-12-10 14:11:00');
 
 -- 6. REVIEWS & REPLIES
+-- 6. REVIEWS & REPLIES (Commented out for A8 Prototype)
+/*
 INSERT INTO "review" (user_id, restaurant_id, content, rating, created_at) VALUES 
 (7, 1, 'Absolutely fantastic!', 5, '2024-10-16');
 INSERT INTO "reply" (user_id, review_id, content, created_at) VALUES 
@@ -106,6 +108,7 @@ INSERT INTO "review" (user_id, restaurant_id, content, rating, created_at) VALUE
 (8, 2, 'Great pizza.', 3, '2024-09-21');
 INSERT INTO "reply" (user_id, review_id, content, created_at) VALUES 
 (4, 2, 'Thank you for your feedback.', '2024-09-21');
+*/
 
 -- 7. OFFERS
 INSERT INTO offer (restaurant_id, title, content, start_date, end_date) VALUES
