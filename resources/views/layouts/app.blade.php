@@ -15,7 +15,6 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
-    @stack('scripts')
 </head>
 
 <body>
@@ -51,6 +50,8 @@
             @yield('content')
         </section>
     </main>
+
+    @stack('scripts')
 </body>
 
 </html>

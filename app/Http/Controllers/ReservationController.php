@@ -145,6 +145,15 @@ class ReservationController extends Controller
             }
         }
 
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('reservations._list', [
+                    'reservations' => $reservations,
+                    'capacityMap' => $currentCapacity,
+                ])->render()
+            ]);
+        }
+
         return view('reservations.index', ['reservations' => $reservations, 'restaurants' => $restaurants ?? null, 
         'selectedRestaurant' => $selectedRestaurant ?? null, 'capacityMap' => $currentCapacity]);
     }
