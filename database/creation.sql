@@ -407,6 +407,10 @@ BEGIN
         RETURN NEW;
     END IF;
 
+    IF TG_OP = 'UPDATE' AND NEW.deleted_at IS DISTINCT FROM OLD.deleted_at THEN
+        RETURN NEW;
+    END IF;
+
     IF OLD.is_completed = TRUE THEN
         RAISE EXCEPTION 'Cannot modify completed reservations';
     END IF;
@@ -491,6 +495,7 @@ CREATE TRIGGER cascade_restaurant_archive_trigger
 
 CREATE OR REPLACE FUNCTION can_reserve(
     restaurant_id INT,
+    user_id INT,
     res_date DATE,
     res_time TIME
 )
@@ -502,6 +507,10 @@ DECLARE
     end_time TIME;
     hours_json JSONB;
 BEGIN
+    IF user_id IS NULL THEN
+        RETURN TRUE;
+    END IF;
+
     day_key := lower(to_char(res_date, 'Dy'));
     day_key := replace(day_key, '.', '');
     
@@ -536,7 +545,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION check_opening_hours()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF NOT can_reserve(NEW.restaurant_id, NEW.date_of_visit, NEW.time_of_visit) THEN
+    IF NOT can_reserve(NEW.restaurant_id, NEW.user_id, NEW.date_of_visit, NEW.time_of_visit) THEN
         RAISE EXCEPTION 'Restaurant is not opened at this time.';
     END IF;
 

@@ -32,11 +32,15 @@ class ReservationController extends Controller
 
             $query = Reservation::query()
                 ->where('restaurant_id', $selectedRestaurant)
+                ->whereNotNull('user_id')
+                ->whereNotNull('restaurant_id')
                 ->with(['restaurant', 'user']);
 
         } else {
             $query = Reservation::query()
                 ->where('user_id', $user->id)
+                ->whereNotNull('user_id')
+                ->whereNotNull('restaurant_id')
                 ->with(['restaurant', 'user']);
         }
         
@@ -143,6 +147,15 @@ class ReservationController extends Controller
                     })
                     ->sum('number_of_people');
             }
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('reservations._list', [
+                    'reservations' => $reservations,
+                    'capacityMap' => $currentCapacity,
+                ])->render()
+            ]);
         }
 
         return view('reservations.index', ['reservations' => $reservations, 'restaurants' => $restaurants ?? null, 
