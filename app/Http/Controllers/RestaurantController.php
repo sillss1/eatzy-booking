@@ -14,9 +14,14 @@ class RestaurantController extends Controller
         $user = Auth::user();
 
         if ($user && $user->isOwner()) {
-            $restaurants = Restaurant::where('owner_id', $user->id)->orderBy('name')->paginate(10);
+            $restaurants = Restaurant::active()
+                ->where('owner_id', $user->id)
+                ->orderBy('name')
+                ->paginate(10);
         } else {
-            $restaurants = Restaurant::active()->orderBy('name')->paginate(10);
+            $restaurants = Restaurant::active()
+                ->orderBy('name')
+                ->paginate(10);
         }
 
         return view('restaurants.index', compact('restaurants'));
@@ -57,6 +62,21 @@ class RestaurantController extends Controller
         ]);
 
         $opening_hours = $this->buildOpeningHoursFromRequest($request);
+
+        $hasAtLeastOneDayOpen = false;
+        foreach ($opening_hours as $hours) {
+            if (!empty($hours)) {
+                $hasAtLeastOneDayOpen = true;
+                break;
+            }
+        }
+
+        if (!$hasAtLeastOneDayOpen) {
+            return back()
+                ->withErrors(['opening_hours' => 'The restaurant must be open at least one day per week.'])
+                ->withInput();
+        }
+
 
         Restaurant::create([
             'owner_id'      => $user->id,
@@ -109,6 +129,22 @@ class RestaurantController extends Controller
         ]);
 
         $opening_hours = $this->buildOpeningHoursFromRequest($request);
+
+        $hasAtLeastOneDayOpen = false;
+        foreach ($opening_hours as $hours) {
+            if (!empty($hours)) {
+                $hasAtLeastOneDayOpen = true;
+                break;
+            }
+        }
+
+        if (!$hasAtLeastOneDayOpen) {
+            return back()
+                ->withErrors(['opening_hours' => 'The restaurant must be open at least one day per week.'])
+                ->withInput();
+        }
+
+
 
         $restaurant->update([
             'name'          => $validated['name'],
