@@ -66,16 +66,10 @@ class Reservation extends Model
         }
     }
 
-    public function getIsCancellableAttribute()
+    public function getIsModifiableAttribute()
     {
         return $this->status === 'pending' || $this->status === 'confirmed';
     }
-
-    public function getIsEditableAttribute()
-    {
-        return $this->status === 'pending' || $this->status === 'confirmed';
-    }
-
     public function getIsDeletableAttribute()
     {
         return $this->status === 'completed' || $this->status === 'cancelled';

@@ -115,7 +115,7 @@ CREATE TABLE "favourite" (
 
 CREATE TABLE "review" (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE NULL,
     restaurant_id INTEGER REFERENCES "restaurant"(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
@@ -126,7 +126,7 @@ CREATE TABLE "review" (
 
 CREATE TABLE "reply" (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE NULL,
     review_id INTEGER REFERENCES "review"(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -145,7 +145,7 @@ CREATE TABLE "restaurant_photo" (
 
 CREATE TABLE "reservation" (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE NULL,
     restaurant_id INTEGER REFERENCES "restaurant"(id) ON DELETE CASCADE,
     title TEXT DEFAULT 'Reservation',
     description TEXT,
@@ -161,7 +161,7 @@ CREATE TABLE "reservation" (
 
 CREATE TABLE "waitlist" (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE NULL,
     reservation_id INTEGER REFERENCES "reservation"(id) ON DELETE CASCADE,
     position INTEGER NOT NULL CHECK (position > 0)
 );
@@ -177,7 +177,7 @@ CREATE TABLE "offer" (
 
 CREATE TABLE "notification" (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE NULL,
     title TEXT NOT NULL,
     date DATE NOT NULL DEFAULT CURRENT_DATE,
     content TEXT,
@@ -303,9 +303,10 @@ BEGIN
     SELECT COALESCE(SUM(number_of_people), 0) INTO total_reserved
     FROM reservation
     WHERE restaurant_id = NEW.restaurant_id
-      AND date_of_visit = NEW.date_of_visit
-      AND deleted_at IS NULL
-      AND id != COALESCE(NEW.id, -1);
+        AND date_of_visit = NEW.date_of_visit
+        AND deleted_at IS NULL
+        AND id != COALESCE(NEW.id, -1)
+        AND (is_confirmed = TRUE);
 
     IF (total_reserved + NEW.number_of_people) > restaurant_capacity THEN
         RAISE EXCEPTION 'Restaurant capacity exceeded. Only % seats available for this time slot.', 

@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
 class User extends Authenticatable {
+    use HasFactory, Notifiable;
+
     public function isOwner(): bool
     {
         return \DB::table('owner')->where('id', $this->id)->exists();
@@ -23,7 +23,6 @@ class User extends Authenticatable {
     {
         return \DB::table('administrator')->where('id', $this->id)->exists();
     }
-    use HasFactory, Notifiable;
 
     public $timestamps  = false;
 
@@ -31,6 +30,8 @@ class User extends Authenticatable {
 
     protected $fillable = [
         'name',
+        'surname',
+        'username',
         'email',
         'password',
     ];

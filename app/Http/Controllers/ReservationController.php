@@ -14,18 +14,50 @@ class ReservationController extends Controller
 {
    public function index(Request $request)
     {
-        $query = Reservation::query()
-            ->where('user_id', Auth::id())
-            ->with('restaurant');
+        $user = Auth::user();
 
-        $includePast = $request->boolean('include_past', false);
+        // Checking the role
 
-        if (! $includePast) {
-            $query->where(function ($q) {
-                $q->whereRaw('is_confirmed = false AND is_completed = false')
-                ->orWhereRaw('is_confirmed = true AND is_completed = false');
+        if ($user->isOwner() && ! $user->isAdmin()) {
+
+            $restaurants = Restaurant::where('owner_id', $user->id)->orderBy('id')->get();
+
+            $selectedRestaurant = $request->get('restaurant_id');
+
+            if ($restaurants->count() === 1) {
+                $selectedRestaurant = $restaurants->first()->id;
+            } else {
+                $selectedRestaurant = $request->get('restaurant_id') ?? $restaurants->first()->id;
+            }
+
+            $query = Reservation::query()
+                ->where('restaurant_id', $selectedRestaurant)
+                ->with(['restaurant', 'user']);
+
+        } else {
+            $query = Reservation::query()
+                ->where('user_id', $user->id)
+                ->with(['restaurant', 'user']);
+        }
+        
+        // Full-text search
+
+        $search = $request->get('search');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'ILIKE', "%{$search}%")
+                ->orWhere('description', 'ILIKE', "%{$search}%") 
+                ->orWhere('date_of_visit', 'ILIKE', "%{$search}%");
+
+                $q->orWhereHas('user', function($q2) use ($search) {
+                $q2->where('name', 'ILIKE', "%{$search}%")
+                ->orWhere('surname', 'ILIKE', "%{$search}%");
+                });
             });
         }
+
+        // Sorting
 
         $direction = $request->get('direction', 'asc');
 
@@ -79,7 +111,42 @@ class ReservationController extends Controller
 
         $reservations = $query->get();
 
-        return view('reservations.index', compact('reservations'));
+        // Status filter
+
+        $status = $request->get('status', 'current');
+
+        if ($status && $status !== 'all') {
+            $reservations = $reservations->filter(function($r) use ($status) {
+                if ($status === 'current') {
+                    return in_array($r->status, ['pending', 'confirmed']);
+                } elseif ($status === 'past') {
+                    return in_array($r->status, ['cancelled', 'completed']);
+                } else {
+                    return $r->status === $status;
+                }
+            });
+        }
+        
+        // Capacity shower
+
+        $currentCapacity = [];
+
+        foreach ($reservations as $res) {
+
+            $key = $res->restaurant_id.'|'.$res->date_of_visit;
+
+            if (!isset($currentCapacity[$key])) {
+                $currentCapacity[$key] = Reservation::where('restaurant_id', $res->restaurant_id)
+                    ->where('date_of_visit', $res->date_of_visit)
+                    ->where(function($q) {
+                        $q->whereRaw('is_confirmed = true AND is_completed = false');
+                    })
+                    ->sum('number_of_people');
+            }
+        }
+
+        return view('reservations.index', ['reservations' => $reservations, 'restaurants' => $restaurants ?? null, 
+        'selectedRestaurant' => $selectedRestaurant ?? null, 'capacityMap' => $currentCapacity]);
     }
 
 
@@ -87,7 +154,9 @@ class ReservationController extends Controller
     {
         $reservation = Reservation::with('restaurant')->findOrFail($id);
 
-        if (! Auth::user()->isAdmin() && Auth::id() !== $reservation->user_id) {
+            
+        $user = Auth::user();
+        if ( ! $user->isAdmin() && $reservation->user_id !== $user->id && $reservation->restaurant->owner_id !== $user->id) {
             abort(403, 'You cannot entre this site');
         }
 
@@ -146,7 +215,7 @@ class ReservationController extends Controller
             abort(403, 'You cannot edit this reservation.');
         }
 
-        if (! $reservation->is_editable) {
+        if (! $reservation->is_modifiable) {
             return redirect()->route('reservations.index')->with('error', 'Only reservations that have not been completed can be edited.');
         }
 
@@ -163,7 +232,7 @@ class ReservationController extends Controller
             abort(403, 'You cannot edit this reservation.');
         }
 
-        if (! $reservation->is_editable) {
+        if (! $reservation->is_modifiable) {
             return redirect()->route('reservations.index')
                 ->with('error', 'Only reservations that have not been completed can be edited.');
         }
@@ -206,13 +275,14 @@ class ReservationController extends Controller
 
     public function cancel($id)
     {
-        $reservation = Reservation::findOrFail($id);
+        $reservation = Reservation::with('restaurant')->findOrFail($id);
+        $user = Auth::user();
 
-        if ($reservation->user_id !== Auth::id()) {
+        if ($reservation->user_id !== $user->id && !($user->isOwner() && $reservation->restaurant->owner_id === $user->id) && ! $user->isAdmin()) {
             abort(403, 'You cannot cancel this reservation.');
         }
 
-        if (! $reservation->is_cancellable) {
+        if (! $reservation->is_modifiable) {
             return redirect()->back()->with('error', 'Only reservations that are pending or confirmed can be cancelled.');
         }
 
@@ -220,9 +290,27 @@ class ReservationController extends Controller
         $reservation->is_completed = DB::raw('TRUE');
         $reservation->save();
 
-        return redirect()->route('reservations.index')->with('success', 'Reservation cancelled successfully.');
+        return redirect()->back()->with('success', 'Reservation cancelled successfully.');
     }
 
+    public function confirm($id)
+    {
+        $reservation = Reservation::with('restaurant')->findOrFail($id);
+        $user = Auth::user();
+
+        if (!$user->isOwner() || $reservation->restaurant->owner_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($reservation->status !== 'pending') {
+            return redirect()->back()->with('error', 'Only pending reservations can be confirmed.');
+        }
+
+        $reservation->is_confirmed = DB::raw('TRUE');;
+        $reservation->save();
+
+        return redirect()->back()->with('success', 'Reservation confirmed.');
+    }
 
     public function destroy($id)
     {

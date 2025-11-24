@@ -23,30 +23,28 @@
         <header>
             <h1><a href="{{ route('restaurants.index') }}">EatZy Booking</a></h1>
 
-            @auth
-                <div>
-
-                    {{-- Customer or Admin --}}
+            <nav style="display: flex; gap: 1rem;">
+                @guest
+                    <a class="button" href="{{ route('login') }}">Login</a>
+                    <a class="button" href="{{ route('register') }}">Register</a>
+                    <a class="button" href="{{ route('about') }}">About</a>
+                    <a class="button" href="{{ route('faq') }}">FAQ</a>
+                @else
                     @if (Auth::user()->isCustomer() || Auth::user()->isAdmin())
-                        <nav style="display: flex; gap: 1rem;">
-                            <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
-                            <a class="button" href="{{ route('reservations.index') }}">My Reservations</a>
-                        </nav>
+                        <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
+                        <a class="button" href="{{ route('reservations.index') }}">My Reservations</a>
                     @endif
-
-                    {{-- Owner --}}
                     @if (Auth::user()->isOwner())
-                        <nav style="display: flex; gap: 1rem;">
-                            <a class="button" href="{{ route('restaurants.create') }}">Add Restaurant</a>
-                            <a class="button" href="{{ route('restaurants.index') }}">My Restaurants</a>
-                        </nav>
+                        <a class="button" href="{{ route('restaurants.create') }}">Add Restaurant</a>
+                        <a class="button" href="{{ route('restaurants.index') }}">My Restaurants</a>
+                        <a class="button" href="{{ route('reservations.index') }}">Reservations</a>
                     @endif
-
-                    {{-- Logout --}}
-                    <span>{{ Auth::user()->name }}</span>
                     <a class="button" href="{{ url('/logout') }}">Logout</a>
-                </div>
-            @endauth
+                    <a class="button" href="{{ route('account') }}">{{ Auth::user()->name }}</a>
+                    <a class="button" href="{{ route('about') }}">About</a>
+                    <a class="button" href="{{ route('faq') }}">FAQ</a>
+                @endguest
+            </nav>
         </header>
 
         <section id="content">
