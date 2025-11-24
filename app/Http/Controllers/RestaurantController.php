@@ -19,6 +19,8 @@ class RestaurantController extends Controller
             $query->where('owner_id', $user->id);
         }
 
+        // Full-text and exact-match search 
+        
         $search = trim($request->get('search'));
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -26,6 +28,9 @@ class RestaurantController extends Controller
                 ->orWhere('description', 'ILIKE', "%{$search}%")
                 ->orWhere('address', 'ILIKE', "%{$search}%");
             });
+
+            $query->orderByRaw("name = ? DESC", [$search])
+                ->orderByRaw("address = ? DESC", [$search]);
         }
 
         $restaurants = $query->orderBy('name')->paginate(10);
