@@ -7,7 +7,8 @@
     <h2>{{ $restaurant->name }}</h2>
     <p>{{ $restaurant->description }}</p>
     <p>{{ $restaurant->address }}</p>
-
+    @include('restaurants._opening_hours')
+    
     @auth
         @if(Auth::user()->isCustomer())
             <a href="{{ route('reservations.create', $restaurant->id) }}" class="button">
