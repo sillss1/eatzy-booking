@@ -28,15 +28,20 @@ class AdminController extends Controller
     {
         $query = User::query();
 
-        // Search by Name or Email
+        // Search by Name or Email - Full-Text and Exact-Match
         if ($request->filled('search')) {
             $search = $request->search;
+
             $query->where(function($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('email', 'ilike', "%{$search}%")
-                  ->orWhere('username', 'ilike', "%{$search}%");
+                ->orWhere('email', 'ilike', "%{$search}%")
+                ->orWhere('username', 'ilike', "%{$search}%")
+
+                ->orWhere('name', $search)
+                ->orWhere('email', $search)
+                ->orWhere('username', $search);
             });
-        }
+}
 
         // Filter by Role
         if ($request->filled('role')) {

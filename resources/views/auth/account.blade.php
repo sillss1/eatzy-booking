@@ -5,7 +5,7 @@
     <h1>My Account</h1>
     <p>Welcome, {{ Auth::user()->name }}!</p>
     <hr>
-    <h3>Danger Zone</h3>
+    <h2>Danger Zone</h2>
     <p>Once you delete your account, there is no going back. Please be certain.</p>
         @if($errors->any())
             <div style>

@@ -24,11 +24,17 @@
 
             <nav style="display: flex; gap: 1rem;">
                 @guest
+                    <div style="margin-right: auto;">
+                        <a class="button" href="{{ route('about') }}">About</a>
+                        <a class="button" href="{{ route('faq') }}">FAQ</a>
+                    </div>
                     <a class="button" href="{{ route('login') }}">Login</a>
                     <a class="button" href="{{ route('register') }}">Register</a>
-                    <a class="button" href="{{ route('about') }}">About</a>
-                    <a class="button" href="{{ route('faq') }}">FAQ</a>
                 @else
+                    <div style="margin-right: auto;">
+                        <a class="button" href="{{ route('about') }}">About</a>
+                        <a class="button" href="{{ route('faq') }}">FAQ</a>
+                    </div>
                     @if (Auth::user()->isCustomer() || Auth::user()->isAdmin())
                         <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
                         <a class="button" href="{{ route('reservations.index') }}">My Reservations</a>
@@ -38,10 +44,8 @@
                         <a class="button" href="{{ route('restaurants.index') }}">My Restaurants</a>
                         <a class="button" href="{{ route('reservations.index') }}">Reservations</a>
                     @endif
-                    <a class="button" href="{{ url('/logout') }}">Logout</a>
                     <a class="button" href="{{ route('account') }}">{{ Auth::user()->name }}</a>
-                    <a class="button" href="{{ route('about') }}">About</a>
-                    <a class="button" href="{{ route('faq') }}">FAQ</a>
+                    <a class="button" href="{{ url('/logout') }}">Logout</a>
                         @if (Auth::user()->isAdmin())
                             <a class="button" style="background-color: #333; border-color: #333;" href="{{ route('admin.dashboard') }}">Admin Panel</a>
                         @endif

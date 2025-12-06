@@ -8,7 +8,7 @@
 <h2>Reservation Details</h2>
 
 <div class="reservation-card">
-    <h3>{{$reservation->title}}</h3>
+    <h2>{{$reservation->title}}</h2>
     <p><strong>At:</strong> 
         <a href="{{ route('restaurants.show', $reservation->restaurant->id) }}">
             {{ $reservation->restaurant->name }}
