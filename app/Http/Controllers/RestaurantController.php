@@ -35,8 +35,33 @@ class RestaurantController extends Controller
             ->orderByRaw("address = ? DESC", [$search])
             ->orderByRaw("ts_rank(tsvectors, plainto_tsquery('english', ?)) DESC", [$search]);
         }
+        $direction = $request->get('direction', 'asc');
 
-        $restaurants = $query->orderBy('name')->paginate(10);
+        // Sorting
+        
+        if ($request->filled('sort')) {
+
+            if ($request->sort === 'name') {
+                $query->orderBy('name', $direction);
+            }
+
+            if ($request->sort === 'address') {
+                $query->orderBy('address', $direction);
+            }
+
+            if ($request->sort === 'capacity') {
+                $query->orderBy('capacity', $direction);
+            }
+
+            if ($request->sort === 'created_at') {
+                $query->orderBy('created_at', $direction);
+            }
+
+            } else {
+                $query->orderBy('name', 'asc');
+            }
+
+        $restaurants = $query->paginate(10);
 
         if ($request->ajax()) {
             return response()->json([

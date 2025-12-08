@@ -377,6 +377,31 @@ table tbody tr:hover {
   color: #ecfeff;
 }
 
+.filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.filters label {
+    font-weight: 500;
+}
+
+.filters input,
+.filters select {
+    padding: 6px 10px; 
+    font-size: 14px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+
+.filters-small select {
+    padding: 4px 8px;
+    font-size: 13px;
+    max-width: 120px;
+}
 
 @media (max-width: 70em) {
   main > header {
