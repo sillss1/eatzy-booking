@@ -98,6 +98,7 @@ Route::middleware('auth')->controller(RestaurantController::class)->group(functi
 // -------------------------------------
 Route::middleware('auth')->controller(RestaurantPhotoController::class)->group(function () {
     Route::post('/owner/restaurants/{restaurant}/photos', 'store')->name('restaurants.photos.store');
+    Route::get('/owner/restaurants/{restaurant}/photos/edit', 'editPhotos')->name('restaurants.photos.edit');
     Route::put('/owner/restaurants/{restaurant}/photos/{photo}', 'update')->name('restaurants.photos.update');
     Route::delete('/owner/restaurants/{restaurant}/photos/{photo}', 'destroy')->name('restaurants.photos.destroy');
 });
