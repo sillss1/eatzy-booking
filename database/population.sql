@@ -37,7 +37,7 @@ INSERT INTO "administrator" (id) VALUES (1), (2);
 INSERT INTO "owner" (id) VALUES (3), (4), (5), (6);
 INSERT INTO "customer" (id) VALUES (7), (8), (9), (10), (11), (12), (13);
 
--- 3. RESTAURANTS (Correção JSONB)
+-- 3. RESTAURANTS
 INSERT INTO "restaurant" (owner_id, name, description, email, phone_number, address, opening_hours, capacity)
 VALUES
     (3, 'The Gourmet Place', 'A fine dining experience.', 'contact@gourmetplace.com', '111222333', '123 Gourmet Street, Porto', 
@@ -57,13 +57,24 @@ VALUES
 
 -- 4. PHOTOS
 INSERT INTO restaurant_photo (restaurant_id, link, title, display_order) VALUES
-(1, 'r1_photo1.jpg', 'Our signature codfish confit', 1),
-(1, 'r1_photo2.jpg', 'The main dining hall', 2),
-(1, 'r1_photo3.jpg', 'Chocolate fondant', 3),
-(2, 'r2_photo1.jpg', 'Wood-fired Margherita', 1),
-(3, 'r3_photo1.jpg', 'Freshly made carbonara', 1),
-(4, 'r4_photo1.jpg', 'Avocado toast', 1),
-(5, 'r5_photo1.jpg', 'Deluxe sushi platter', 1);
+(1, 'r1_photo1.png', 'The main dining hall', 1);
+
+INSERT INTO restaurant_photo (restaurant_id, link, title, price, display_order) VALUES
+(1, 'r1_photo2.png', 'Our signature shrimp in garlic butter', 15, 2),
+(1, 'r1_photo3.png', 'Truffle aged beef and asparagus ravioli', 17, 3),
+(1, 'r1_photo4.png', 'Chocolate fondant', 9, 4),
+(2, 'r2_photo1.png', 'Wood-fired Margherita', 12.99, 1),
+(2, 'r2_photo2.png', 'Spiratta - burrata and spinach pizza', 14.99, 2),
+(3, 'r3_photo1.png', 'Avocado toast', 5.5, 1),
+(4, 'r4_photo1.png', 'Classic burger', 9.6, 1),
+(4, 'r4_photo2.png', 'Our delicious loaded nachos', 6.5, 2),
+(4, 'r4_photo3.png', 'Fries with garlic sauce', 3.5, 3),
+(4, 'r4_photo4.png', 'Fresh lemonade', 3.99, 4),
+(4, 'r4_photo5.png', 'Bufallo chicken', 7, 5),
+(4, 'r4_photo6.png', 'A classic hot-dog', 5.99, 6),
+(4, 'r4_photo7.png', 'An oreo sundae', 5, 7),
+(5, 'r5_photo1.png', 'Deluxe sushi platter', 16, 1),
+(3, 'r3_photo2.png', 'Freshly made carbonara', 10.99, 2);
 
 -- 5. RESERVATIONS
 INSERT INTO reservation (user_id, restaurant_id, number_of_people, date_of_visit, time_of_visit, is_confirmed, is_completed, title, description, created_at) VALUES

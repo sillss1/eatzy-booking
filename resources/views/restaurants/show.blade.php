@@ -39,7 +39,6 @@
 
     @auth
         @if(auth()->user()->isOwner() && auth()->user()->id === $restaurant->owner_id)
-            <div>Manage Photos</div>
             <a href="{{ route('restaurants.photos.edit', $restaurant->id) }}" class="button">
                 Edit Photos
             </a>

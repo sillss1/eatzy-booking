@@ -140,7 +140,7 @@ CREATE TABLE "restaurant_photo" (
     link TEXT NOT NULL,
     display_order INTEGER CHECK (display_order > 0),
     title TEXT,
-    price INTEGER CHECK (price > 0)
+    price DECIMAL(10,2) CHECK (price > 0)
 );
 
 CREATE TABLE "reservation" (
