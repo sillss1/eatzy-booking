@@ -5,7 +5,7 @@
 @section('content')
 <a href="{{ route('reservations.index') }}" class="button">Back to My Reservations</a>
 
-<h2>Reservation Details</h2>
+<h2><strong>Reservation Details</strong></h2>
 
 <div class="reservation-card">
     <h2>{{$reservation->title}}</h2>
@@ -84,7 +84,9 @@
 
 @if (Auth::id() === $reservation->user_id || Auth::user()->isAdmin())
 <h2>Restaurant Info</h2>
-@include('restaurants._show', ['restaurant' => $reservation->restaurant])
+<a href="{{ route('restaurants.show', $reservation->restaurant->id) }}" style="text-decoration: none; color: inherit;">
+    @include('restaurants._show', ['restaurant' => $reservation->restaurant])
+</a>
 @endif
 
 @endsection

@@ -5,7 +5,6 @@
 @section('content')
     <h2>My Reservations</h2>
 
-    <form method="GET" action="{{ route('reservations.index') }}">
     @if(Auth::user()->isOwner() && isset($restaurants) && $restaurants->count() > 1)
         <label for="restaurant_id">Select restaurant:</label>
         <select name="restaurant_id" id="restaurant_id">
@@ -19,7 +18,8 @@
 
     <label for="search">Search:</label>
     <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search reservations">
-
+    
+    <div class="filters filters-small">
     <label for="sort">Sort by:</label>
     <select name="sort" id="sort">
         <option value="">Default</option>
@@ -43,8 +43,8 @@
         <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
     </select>
-
-    </form>
+    
+    </div>
 
      <div id="reservation-list">
         @include('reservations._list')
@@ -55,12 +55,17 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
 
     function loadReservations() {
-        const params = new URLSearchParams(new FormData(form));
+        const params = new URLSearchParams();
+        const fields = ['restaurant_id', 'search', 'sort', 'direction', 'status'];
 
-        fetch("{{ route('reservations.index') }}?" + params, {
+        fields.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) params.append(id, el.value);
+        });
+
+        fetch("{{ route('reservations.index') }}?" + params.toString(), {
             headers: { "X-Requested-With": "XMLHttpRequest" }
         })
         .then(r => r.json())
@@ -69,15 +74,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    form.querySelectorAll('select').forEach(select => {
+    document.querySelectorAll('.filters select').forEach(select => {
         select.addEventListener('change', loadReservations);
     });
 
-    form.querySelectorAll('input').forEach(input => {
-        if(input.type === 'text') {
-            input.addEventListener('input', debounce(loadReservations, 225)); 
-        }
-    });
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(loadReservations, 225));
+    }
 
     function debounce(fn, delay) {
         let timeout;

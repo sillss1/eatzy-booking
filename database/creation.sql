@@ -140,7 +140,7 @@ CREATE TABLE "restaurant_photo" (
     link TEXT NOT NULL,
     display_order INTEGER CHECK (display_order > 0),
     title TEXT,
-    price INTEGER CHECK (price > 0)
+    price DECIMAL(10,2) CHECK (price > 0)
 );
 
 CREATE TABLE "reservation" (
@@ -211,7 +211,8 @@ BEGIN
  IF TG_OP = 'INSERT' THEN
         NEW.tsvectors = (
          setweight(to_tsvector('english', NEW.name), 'A') ||
-         setweight(to_tsvector('english', NEW.description), 'B')
+         setweight(to_tsvector('english', NEW.description), 'B') ||
+         setweight(to_tsvector('english', NEW.address), 'C')
         );
  END IF;
  IF TG_OP = 'UPDATE' THEN
@@ -219,7 +220,7 @@ BEGIN
            NEW.tsvectors = (
              setweight(to_tsvector('english', NEW.name), 'A') ||
              setweight(to_tsvector('english', NEW.description), 'B') ||
-             setweight(to_tsvector('english', NEW.location), 'C')
+             setweight(to_tsvector('english', NEW.address), 'C')
            );
          END IF;
  END IF;

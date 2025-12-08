@@ -265,7 +265,7 @@ form.card-form textarea:focus {
 .restaurant-card p,
 #cards article.card p {
   margin: 0;
-  font-size: 0.93rem;
+  font-size: 1.5rem;
   color: #4b5563;
 }
 
@@ -338,6 +338,71 @@ table tbody tr:hover {
   color: #6b7280;
 }
 
+.menu-slider {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 16px;
+    padding: 10px 0;
+}
+
+.menu-slide {
+    flex: 0 0 auto;
+    width: 200px;
+    text-align: center;
+}
+
+.menu-slide img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+.photo-title {
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.menu-slide:hover img {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.button.delete-button {
+  background-color: red;
+  border-color: red;
+  color: #ecfeff;
+}
+
+.filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.filters label {
+    font-weight: 500;
+}
+
+.filters input,
+.filters select {
+    padding: 6px 10px; 
+    font-size: 14px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+
+.filters-small select {
+    padding: 4px 8px;
+    font-size: 13px;
+    max-width: 120px;
+}
+
 @media (max-width: 70em) {
   main > header {
     flex-wrap: wrap;
@@ -370,3 +435,4 @@ table tbody tr:hover {
     max-width: 25em;
   }
 }
+
