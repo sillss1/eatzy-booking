@@ -45,6 +45,12 @@ class Restaurant extends Model
         return $this->hasMany(Reservation::class, 'restaurant_id');
     }
 
+    public function photos()
+    {
+        return $this->hasMany(RestaurantPhoto::class, 'restaurant_id')->orderBy('display_order');
+    }
+
+
     public function scopeActive($query)
     {
         return $query->whereNull('closed_at');

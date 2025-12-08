@@ -57,13 +57,13 @@ VALUES
 
 -- 4. PHOTOS
 INSERT INTO restaurant_photo (restaurant_id, link, title, display_order) VALUES
-(1, 'gp_dish.jpg', 'Our signature codfish confit', 1),
-(1, 'gp_interior.jpg', 'The main dining hall', 2),
-(1, 'gp_dessert.jpg', 'Chocolate fondant', 3),
-(2, 'ph_pizza.jpg', 'Wood-fired Margherita', 1),
-(3, 'pp_pasta.jpg', 'Freshly made carbonara', 1),
-(4, 'cc_brunch.jpg', 'Avocado toast', 1),
-(5, 'sc_sushi.jpg', 'Deluxe sushi platter', 1);
+(1, 'r1_photo1.jpg', 'Our signature codfish confit', 1),
+(1, 'r1_photo2.jpg', 'The main dining hall', 2),
+(1, 'r1_photo3.jpg', 'Chocolate fondant', 3),
+(2, 'r2_photo1.jpg', 'Wood-fired Margherita', 1),
+(3, 'r3_photo1.jpg', 'Freshly made carbonara', 1),
+(4, 'r4_photo1.jpg', 'Avocado toast', 1),
+(5, 'r5_photo1.jpg', 'Deluxe sushi platter', 1);
 
 -- 5. RESERVATIONS
 INSERT INTO reservation (user_id, restaurant_id, number_of_people, date_of_visit, time_of_visit, is_confirmed, is_completed, title, description, created_at) VALUES

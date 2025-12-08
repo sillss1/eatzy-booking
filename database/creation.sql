@@ -211,7 +211,8 @@ BEGIN
  IF TG_OP = 'INSERT' THEN
         NEW.tsvectors = (
          setweight(to_tsvector('english', NEW.name), 'A') ||
-         setweight(to_tsvector('english', NEW.description), 'B')
+         setweight(to_tsvector('english', NEW.description), 'B') ||
+         setweight(to_tsvector('english', NEW.address), 'C')
         );
  END IF;
  IF TG_OP = 'UPDATE' THEN
@@ -219,7 +220,7 @@ BEGIN
            NEW.tsvectors = (
              setweight(to_tsvector('english', NEW.name), 'A') ||
              setweight(to_tsvector('english', NEW.description), 'B') ||
-             setweight(to_tsvector('english', NEW.location), 'C')
+             setweight(to_tsvector('english', NEW.address), 'C')
            );
          END IF;
  END IF;

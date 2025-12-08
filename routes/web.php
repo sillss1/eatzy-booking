@@ -6,6 +6,7 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RestaurantPhotoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,4 +91,13 @@ Route::middleware('auth')->controller(RestaurantController::class)->group(functi
     Route::get('/owner/restaurants/{restaurant}/edit', 'edit')->name('restaurants.edit');
     Route::put('/owner/restaurants/{restaurant}', 'update')->name('restaurants.update');
     Route::delete('/owner/restaurants/{restaurant}', 'destroy')->name('restaurants.destroy');
+});
+
+// -------------------------------------
+// Restaurant photos
+// -------------------------------------
+Route::middleware('auth')->controller(RestaurantPhotoController::class)->group(function () {
+    Route::post('/owner/restaurants/{restaurant}/photos', 'store')->name('restaurants.photos.store');
+    Route::put('/owner/restaurants/{restaurant}/photos/{photo}', 'update')->name('restaurants.photos.update');
+    Route::delete('/owner/restaurants/{restaurant}/photos/{photo}', 'destroy')->name('restaurants.photos.destroy');
 });
