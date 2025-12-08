@@ -265,7 +265,7 @@ form.card-form textarea:focus {
 .restaurant-card p,
 #cards article.card p {
   margin: 0;
-  font-size: 0.93rem;
+  font-size: 1.5rem;
   color: #4b5563;
 }
 

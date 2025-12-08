@@ -13,30 +13,27 @@ class RestaurantController extends Controller
     {
         $user = Auth::user();
 
-       $query = Restaurant::active();
+        $query = Restaurant::active();
 
         if ($user && $user->isOwner()) {
             $query->where('owner_id', $user->id);
         }
 
-        // Full-text and exact-match search 
-        
+        // Full-text and exact match search
+
         $search = trim($request->get('search'));
-
         if ($search) {
-            $query
-                ->whereRaw("tsvectors @@ plainto_tsquery('english', ?)", [$search])
-
-                ->orWhere(function($q) use ($search) {
-                    $q->where('name', 'ILIKE', "%{$search}%")
-                    ->orWhere('description', 'ILIKE', "%{$search}%")
-                    ->orWhere('address', 'ILIKE', "%{$search}%");
-                })
-
-                ->orderByRaw("name = ? DESC", [$search])
-                ->orderByRaw("address = ? DESC", [$search])
-
-                ->orderByRaw("ts_rank(tsvectors, plainto_tsquery('english', ?)) DESC", [$search]);
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw("tsvectors @@ plainto_tsquery('english', ?)", [$search])
+                ->orWhere(function($q2) use ($search) {
+                    $q2->where('name', 'ILIKE', "%{$search}%")
+                        ->orWhere('description', 'ILIKE', "%{$search}%")
+                        ->orWhere('address', 'ILIKE', "%{$search}%");
+                });
+            })
+            ->orderByRaw("name = ? DESC", [$search])
+            ->orderByRaw("address = ? DESC", [$search])
+            ->orderByRaw("ts_rank(tsvectors, plainto_tsquery('english', ?)) DESC", [$search]);
         }
 
         $restaurants = $query->orderBy('name')->paginate(10);
