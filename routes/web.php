@@ -54,8 +54,8 @@ Route::get('/faq', [StaticPageController::class, 'faq'])->name('faq');
 // -------------------------------------
 Route::middleware('auth')->controller(UserController::class)->group(function () {
     Route::get('/user', 'viewProfile')->name('account.me');
-    Route::get('/user/{id}', 'viewProfile')->name('account.view');
     Route::get('/user/edit', 'editProfile')->name('account.edit');
+    Route::get('/user/{id}', 'viewProfile')->name('account.view');
     Route::post('/user/update', 'updateProfile')->name('account.update');
     Route::delete('/user/delete', 'deleteAccount')->name('user.delete');
     Route::delete('/user/remove-picture', 'removePicture')->name('account.remove_picture');
