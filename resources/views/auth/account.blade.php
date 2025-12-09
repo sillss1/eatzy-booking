@@ -20,7 +20,8 @@
 
     <br>
     <a href="{{ route('account.edit') }}">
-        <button>Edit Profile</button>
+        <button>Edit Profile / Account details</button>
     </a>
+
 </div>
 @endsection

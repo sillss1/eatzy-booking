@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
@@ -34,11 +35,25 @@ class UserController extends Controller
         }
 
         $request->validate([
+            'username' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('user', 'username')->ignore($user->id),
+            ],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('user', 'email')->ignore($user->id),
+            ],
             'name' => 'nullable|string|max:100',
             'surname' => 'nullable|string|max:100',
             'profile_description' => 'nullable|string|max:500',
-            'profile_picture' => 'nullable|image|max:2048'
+            'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'remove_picture' => 'nullable|boolean',
         ]);
+
 
         if ($request->remove_picture) {
             if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
@@ -47,6 +62,19 @@ class UserController extends Controller
             $user->profile_picture = null;
         }
 
+        $emailChanged = false;
+        if ($request->filled('username') && $request->username !== $user->username) {
+            $user->username = $request->username;
+        }
+
+        if ($request->filled('email') && $request->email !== $user->email) {
+            $emailChanged = true;
+            $user->email = $request->email;
+            if (method_exists($user, 'setAttribute')) {
+                $user->email_verified_at = null;
+            }
+        }
+    
         if ($request->filled('name')) $user->name = $request->name;
         if ($request->filled('surname')) $user->surname = $request->surname;
         $user->profile_description = $request->profile_description;
@@ -55,14 +83,34 @@ class UserController extends Controller
             if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
                 Storage::disk('public')->delete($user->profile_picture);
             }
-            
+
             $path = $request->file('profile_picture')->store('profiles', 'public');
             $user->profile_picture = $path;
         }
 
         $user->save();
 
-        return redirect()->route('account')->with('success', 'Profile updated successfully.');
+        /* For the future when we 2FA
+        if ($emailChanged && in_array(\Illuminate\Contracts\Auth\MustVerifyEmail::class, class_implements($user))) {
+            $user->sendEmailVerificationNotification();
+            return redirect()->route('account')->with('success', 'Profile updated. Please verify your new email address.');
+        }
+        */
+
+        return back()->with('success', 'Profile updated successfully.');
+    }
+
+    public function removePicture(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user && $user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
+            Storage::disk('public')->delete($user->profile_picture);
+            $user->profile_picture = null;
+            $user->save();
+        }
+
+        return back()->with('success', 'Profile picture removed successfully.');
     }
 
     // Web: Delete account (HARD DELETE)
