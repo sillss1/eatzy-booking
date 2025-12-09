@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
 
-    <a href="{{ route('account') }}" class="button button-outline">
+    <a href="{{ route('account.me') }}" class="button button-outline">
     ← Back to Profile
     </a>
 

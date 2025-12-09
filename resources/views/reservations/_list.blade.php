@@ -4,14 +4,20 @@
         <ul>
             @foreach ($reservations as $reservation)
                 <li style="margin-bottom: 1rem;">
-                    <a href="{{ route('reservations.show', $reservation->id) }}">
                         @if(Auth::user()->isOwner() && $reservation->restaurant->owner_id == Auth::id())
-                            <strong>Reservation by {{ $reservation->user->username }} </strong><br>
+                            <a href="{{ route('reservations.show', $reservation->id) }}">
+                                <strong>{{ $reservation->title }}</strong>
+                            </a>
+                            <strong> by </strong>
+                            <a href="{{ route('account.view', ['id' => $reservation->user->id]) }}">
+                                <strong>{{ $reservation->user->username }}</strong><br>
+                            </a>
                             <small> Name: {{ $reservation->user->name }} {{ $reservation->user->surname }}</small><br>
                         @else
-                            <strong>{{ $reservation->title }}</strong><br>
+                            <a href="{{ route('reservations.show', $reservation->id) }}">
+                                <strong>{{ $reservation->title }}</strong><br>
+                            </a>
                         @endif
-                    </a>
 
                     @if (Auth::user()->isCustomer())
                     <span>
@@ -52,7 +58,7 @@
 
                     <small>
                         Created at: {{ $reservation->created_at }} 
-                    </small>
+                    </small><br>
 
                     @if(Auth::user()->isOwner() && $reservation->restaurant->owner_id == Auth::id())
                         @if($reservation->status === 'pending')

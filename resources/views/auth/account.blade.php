@@ -18,10 +18,14 @@
     <p style="margin-bottom: 5px;"><strong>Name:</strong> {{ $user->name }} {{ $user->surname }}</p>
     <p style="margin-top: 5px;"><strong>Description:</strong> {{ $user->profile_description ?? 'No description' }}</p>
 
-    <br>
-    <a href="{{ route('account.edit') }}">
-        <button>Edit Profile / Account details</button>
-    </a>
-
+    @auth
+        @if(Auth::id() === $user->id)
+            <br>
+            <a href="{{ route('account.edit') }}">
+                <button>Edit Profile / Account details</button>
+            </a>
+        @endif
+    @endauth
+    
 </div>
 @endsection

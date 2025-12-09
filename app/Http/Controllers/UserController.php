@@ -12,13 +12,12 @@ use Illuminate\Support\Facades\DB;
 class UserController extends Controller
 {
 
-    public function viewProfile()
+    public function viewProfile($id = null)
     {
-        $user = Auth::user();
-
+        $user = $id ? User::findOrFail($id) : Auth::user();
         return view('auth.account', compact('user'));
     }
-
+    
     public function editProfile()
     {
         $user = Auth::user();
