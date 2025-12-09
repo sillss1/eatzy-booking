@@ -52,14 +52,11 @@ Route::get('/faq', [StaticPageController::class, 'faq'])->name('faq');
 // -------------------------------------
 // Account Management (US18)
 // -------------------------------------
-Route::middleware('auth')->group(function () {
-    // 1. Página para ver a conta e o botão de apagar (ESTA ESTAVA EM FALTA)
-    Route::get('/account', function () {
-        return view('auth.account');
-    })->name('account');
-
-    // 2. Ação de apagar a conta
-    Route::delete('/user/delete', [UserController::class, 'deleteAccount'])->name('user.delete');
+Route::middleware('auth')->controller(UserController::class)->group(function () {
+    Route::get('/user', 'viewProfile')->name('account');
+    Route::get('/user/edit', 'editProfile')->name('account.edit');
+    Route::post('/user/update', 'updateProfile')->name('account.update');
+    Route::delete('/user/delete', 'deleteAccount')->name('user.delete');
 });
 
 // -------------------------------------
