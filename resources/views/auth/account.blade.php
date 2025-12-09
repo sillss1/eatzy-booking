@@ -2,20 +2,30 @@
 
 @section('content')
 <div class="container">
-    <h1>My Account</h1>
-    <p>Welcome, {{ Auth::user()->name }}!</p>
-    <hr>
-    <h2>Danger Zone</h2>
-    <p>Once you delete your account, there is no going back. Please be certain.</p>
-        @if($errors->any())
-            <div style>
-                {{ $errors->first() }}
-            </div>
+    @if($user->profile_picture)
+        <img src="{{ asset('storage/' . $user->profile_picture) }}"
+             alt="Profile Picture"
+             class="profile-avatar">
+    @else
+        <img src="{{ asset('storage/restaurant_photos/default_pfp.jpg') }}"
+             alt="Default Avatar"
+             class="profile-avatar">
+    @endif
+
+    <h1 style="margin-bottom: 3px;">{{ $user->username }}</h1>
+    <h3 style="margin-bottom: 30px;">Joined at: {{ $user->joined_at }}</h3>
+
+    <p style="margin-bottom: 5px;"><strong>Name:</strong> {{ $user->name }} {{ $user->surname }}</p>
+    <p style="margin-top: 5px;"><strong>Description:</strong> {{ $user->profile_description ?? 'No description' }}</p>
+
+    @auth
+        @if(Auth::id() === $user->id)
+            <br>
+            <a href="{{ route('account.edit') }}">
+                <button>Edit Profile / Account details</button>
+            </a>
         @endif
-        <form action="{{ route('user.delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account?');">
-        @csrf
-        @method('DELETE')
-        <button type="submit" style="background-color: red; border-color: red;">Delete My Account</button>
-    </form>
+    @endauth
+    
 </div>
 @endsection

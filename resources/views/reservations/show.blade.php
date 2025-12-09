@@ -5,10 +5,16 @@
 @section('content')
 <a href="{{ route('reservations.index') }}" class="button">Back to My Reservations</a>
 
-<h2><strong>Reservation Details</strong></h2>
+<h1>Reservation Details</h1>
+<br>
 
 <div class="reservation-card">
-    <h2>{{$reservation->title}}</h2>
+    <h2><strong>{{$reservation->title}}</strong> by    
+        <a href="{{ route('account.view', ['id' => $reservation->user->id]) }}">
+            {{ $reservation->user->username }}
+        </a>
+    </h2> 
+
     <p><strong>At:</strong> 
         <a href="{{ route('restaurants.show', $reservation->restaurant->id) }}">
             {{ $reservation->restaurant->name }}
@@ -30,7 +36,7 @@
     <p><strong>Status:</strong> {{ ucfirst($reservation->status) }}</p>
     <p><strong>Created At:</strong> {{ $reservation->created_at }}</p>
     @if ($reservation->edited_at)
-    <p><strong>Edited At:</strong> {{ $reservation->edited_at }}</p>
+        <p><strong>Edited At:</strong> {{ $reservation->edited_at }}</p>
     @endif
 </div>
 

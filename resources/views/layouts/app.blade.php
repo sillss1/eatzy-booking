@@ -44,7 +44,7 @@
                         <a class="button" href="{{ route('restaurants.index') }}">My Restaurants</a>
                         <a class="button" href="{{ route('reservations.index') }}">Reservations</a>
                     @endif
-                    <a class="button" href="{{ route('account') }}">{{ Auth::user()->name }}</a>
+                    <a class="button" href="{{ route('account.me') }}">{{ Auth::user()->name }}</a>
                     <a class="button" href="{{ url('/logout') }}">Logout</a>
                         @if (Auth::user()->isAdmin())
                             <a class="button" style="background-color: #333; border-color: #333;" href="{{ route('admin.dashboard') }}">Admin Panel</a>
