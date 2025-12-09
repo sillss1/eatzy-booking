@@ -138,7 +138,7 @@ a:hover {
 }
 
 #content h3 {
-  font-size: 1.25rem;
+  font-size: 1.6rem;
   margin-top: 1.5rem;
 }
 
@@ -401,6 +401,16 @@ table tbody tr:hover {
     padding: 4px 8px;
     font-size: 13px;
     max-width: 120px;
+}
+
+.profile-avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 3px solid #ffffff;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
 }
 
 @media (max-width: 70em) {

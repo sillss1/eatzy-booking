@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
@@ -39,16 +40,25 @@ class UserController extends Controller
             'profile_picture' => 'nullable|image|max:2048'
         ]);
 
+        if ($request->remove_picture) {
+            if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
+                Storage::disk('public')->delete($user->profile_picture);
+            }
+            $user->profile_picture = null;
+        }
+
         if ($request->filled('name')) $user->name = $request->name;
         if ($request->filled('surname')) $user->surname = $request->surname;
         $user->profile_description = $request->profile_description;
 
-        /* File upload example
         if ($request->hasFile('profile_picture')) {
+            if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
+                Storage::disk('public')->delete($user->profile_picture);
+            }
+            
             $path = $request->file('profile_picture')->store('profiles', 'public');
             $user->profile_picture = $path;
         }
-        */
 
         $user->save();
 
