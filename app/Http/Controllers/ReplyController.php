@@ -23,10 +23,10 @@ class ReplyController extends Controller
         ]);
 
         Reply::create([
-            'review_id' => $review->id,
-            'owner_id'  => $user->id,
-            'comment'   => $validated['comment'],
-            'created_at'=> now(),
+            'review_id'  => $review->id,
+            'user_id'    => $user->id,
+            'content'    => $validated['comment'],
+            'created_at' => now(),
         ]);
 
         return back()->with('success', 'Reply posted successfully.');
@@ -35,9 +35,9 @@ class ReplyController extends Controller
     public function edit($id)
     {
         $reply = Reply::with('review.restaurant')->findOrFail($id);
-        $user = Auth::user();
+        $user  = Auth::user();
 
-        if (!$user || $user->id !== $reply->owner_id) abort(403);
+        if (!$user || $user->id !== $reply->user_id) abort(403);
 
         return view('replies.edit', compact('reply'));
     }
@@ -45,16 +45,16 @@ class ReplyController extends Controller
     public function update(Request $request, $id)
     {
         $reply = Reply::with('review.restaurant')->findOrFail($id);
-        $user = Auth::user();
+        $user  = Auth::user();
 
-        if (!$user || $user->id !== $reply->owner_id) abort(403);
+        if (!$user || $user->id !== $reply->user_id) abort(403);
 
         $validated = $request->validate([
             'comment' => 'required|string|max:2000',
         ]);
 
         $reply->update([
-            'comment'   => $validated['comment'],
+            'content'   => $validated['comment'],
             'edited_at' => now(),
         ]);
 
@@ -66,9 +66,9 @@ class ReplyController extends Controller
     public function destroy($id)
     {
         $reply = Reply::with('review.restaurant')->findOrFail($id);
-        $user = Auth::user();
+        $user  = Auth::user();
 
-        if (!$user || $user->id !== $reply->owner_id) abort(403);
+        if (!$user || $user->id !== $reply->user_id) abort(403);
 
         $reply->delete();
 

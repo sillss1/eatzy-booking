@@ -56,10 +56,9 @@
             </form>
         @endif
 
-        {{-- Owner reply section --}}
         @if ($review->reply)
             <div class="meta" style="margin-top:0.5rem;">
-                <strong>Owner reply:</strong> {{ $review->reply->comment }}
+                <strong>Owner reply:</strong> {{ $review->reply->content }}
 
                 @if (
                     Auth::check() &&
@@ -95,6 +94,9 @@
                     @csrf
                     <label>Reply to this review</label>
                     <textarea name="comment" required>{{ old('comment') }}</textarea>
+                    @error('comment')
+                        <span class="error">{{ $message }}</span>
+                    @enderror
                     <div class="form-actions">
                         <button type="submit" class="button">Reply</button>
                     </div>

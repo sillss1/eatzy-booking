@@ -11,9 +11,9 @@ class Reply extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'user_id',
         'review_id',
-        'owner_id',
-        'comment',
+        'content',
         'created_at',
         'edited_at',
         'deleted_at',
@@ -26,6 +26,6 @@ class Reply extends Model
 
     public function owner()
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
