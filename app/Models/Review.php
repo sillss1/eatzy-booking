@@ -6,27 +6,33 @@ use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
 {
-    protected $table = 'reviews';
+    protected $table = 'review';
+
+    public $timestamps = false;
 
     protected $fillable = [
-        'customer_id',
+        'user_id',
         'restaurant_id',
+        'content',
         'rating',
-        'comment',
+        'created_at',
+        'edited_at',
+        'deleted_at',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Se quiseres continuar a pensar em "customer":
     public function customer()
     {
-        return $this->belongsTo(User::class, 'customer_id');
+        return $this->user();
     }
 
     public function restaurant()
     {
         return $this->belongsTo(Restaurant::class);
-    }
-
-    public function reply()
-    {
-        return $this->hasOne(Reply::class);
     }
 }
