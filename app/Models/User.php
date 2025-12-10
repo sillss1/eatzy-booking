@@ -24,6 +24,12 @@ class User extends Authenticatable {
         return \DB::table('administrator')->where('id', $this->id)->exists();
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'customer_id');
+    }
+
+
     public $timestamps  = false;
 
     protected $table = 'user';
