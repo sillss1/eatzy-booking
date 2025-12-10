@@ -10,7 +10,7 @@
         @method('PUT')
 
         <label>Reply</label>
-        <textarea name="comment" required>{{ old('comment', $reply->comment) }}</textarea>
+        <textarea name="comment" required>{{ old('comment', $reply->content) }}</textarea>
         @error('comment')
             <span class="error">{{ $message }}</span>
         @enderror
