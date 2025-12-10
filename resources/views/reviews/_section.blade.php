@@ -33,7 +33,12 @@
     @endif
 @endauth
 
-@foreach ($restaurant->reviews()->with('user')->orderByDesc('created_at')->get() as $review)
+@foreach (
+    $restaurant->reviews()
+        ->with(['user', 'reply'])
+        ->orderByDesc('created_at')
+        ->get() as $review
+)
     <div class="restaurant-card">
         <p>
             <strong>{{ $review->user->name ?? 'Customer' }}</strong>
@@ -49,6 +54,52 @@
                 @method('DELETE')
                 <button class="button button-outline">Delete</button>
             </form>
+        @endif
+
+        {{-- Owner reply section --}}
+        @if ($review->reply)
+            <div class="meta" style="margin-top:0.5rem;">
+                <strong>Owner reply:</strong> {{ $review->reply->comment }}
+
+                @if (
+                    Auth::check() &&
+                    Auth::user()->isOwner() &&
+                    Auth::id() === $restaurant->owner_id
+                )
+                    <div class="actions" style="margin-top: 0.5rem;">
+                        <a class="button button-outline"
+                           href="{{ route('replies.edit', $review->reply->id) }}">
+                            Edit reply
+                        </a>
+
+                        <form action="{{ route('replies.destroy', $review->reply->id) }}"
+                              method="POST"
+                              style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button class="button button-outline">Delete reply</button>
+                        </form>
+                    </div>
+                @endif
+            </div>
+        @else
+            @if (
+                Auth::check() &&
+                Auth::user()->isOwner() &&
+                Auth::id() === $restaurant->owner_id
+            )
+                <form action="{{ route('replies.store', $review->id) }}"
+                      method="POST"
+                      class="card-form"
+                      style="margin-top: 0.75rem;">
+                    @csrf
+                    <label>Reply to this review</label>
+                    <textarea name="comment" required>{{ old('comment') }}</textarea>
+                    <div class="form-actions">
+                        <button type="submit" class="button">Reply</button>
+                    </div>
+                </form>
+            @endif
         @endif
     </div>
 @endforeach
