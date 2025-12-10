@@ -8,6 +8,7 @@ use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RestaurantPhotoController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReplyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -119,4 +120,11 @@ Route::middleware('auth')->controller(ReviewController::class)->group(function (
 
     // Delete review
     Route::delete('/reviews/{review}', 'destroy')->name('reviews.destroy');
+});
+
+Route::middleware('auth')->controller(ReplyController::class)->group(function () {
+    Route::post('/reviews/{review}/reply', 'store')->name('replies.store');
+    Route::get('/replies/{reply}/edit', 'edit')->name('replies.edit');
+    Route::put('/replies/{reply}', 'update')->name('replies.update');
+    Route::delete('/replies/{reply}', 'destroy')->name('replies.destroy');
 });

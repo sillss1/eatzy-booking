@@ -25,7 +25,11 @@ class Review extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Se quiseres continuar a pensar em "customer":
+    public function reply()
+    {
+        return $this->hasOne(Reply::class);
+    }
+
     public function customer()
     {
         return $this->user();

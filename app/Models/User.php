@@ -29,6 +29,11 @@ class User extends Authenticatable {
         return $this->hasMany(Review::class, 'customer_id');
     }
 
+    public function replies()
+    {
+        return $this->hasMany(\App\Models\Reply::class, 'owner_id');
+    }
+
 
     public $timestamps  = false;
 
