@@ -2,7 +2,6 @@
 
 @section('title', $restaurant->name)
 
-
 @section('content')
     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem;">
         <div style="flex: 1;">
@@ -25,11 +24,11 @@
             </a>
         @endif
         @if(auth()->user()->isOwner() && auth()->user()->id === $restaurant->owner_id)
-        <p>
-            <a class="button" href="{{ route('restaurants.edit', $restaurant->id) }}">
-                Edit Restaurant Details
-            </a>
-        </p>
+            <p>
+                <a class="button" href="{{ route('restaurants.edit', $restaurant->id) }}">
+                    Edit Restaurant Details
+                </a>
+            </p>
         @endif
     @endauth
 
@@ -47,4 +46,5 @@
 
     <h2>Reviews</h2>
 
+    @include('reviews._section')
 @endsection
