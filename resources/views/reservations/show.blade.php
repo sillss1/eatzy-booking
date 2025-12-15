@@ -9,10 +9,11 @@
 <br>
 
 <div class="reservation-card">
-    <h2><strong>{{$reservation->title}}</strong> by    
-        <a href="{{ route('account.view', ['id' => $reservation->user->id]) }}">
+    <h2><strong>{{$reservation->title}}</strong> @if (Auth::user()->isOwner()) by    
+        <a href="{{ route('account.view', ['id' => $reservation->user->id]) }}" title="View profile">
             {{ $reservation->user->username }}
         </a>
+        @endif
     </h2> 
 
     <p><strong>At:</strong> 

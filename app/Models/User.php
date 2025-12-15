@@ -24,6 +24,11 @@ class User extends Authenticatable {
         return \DB::table('administrator')->where('id', $this->id)->exists();
     }
 
+    public function favouriteRestaurants()
+    {
+        return $this->belongsToMany(Restaurant::class, 'favourite', 'user_id', 'restaurant_id');
+    }
+
     public function reviews()
     {
         return $this->hasMany(Review::class, 'customer_id');
@@ -33,7 +38,6 @@ class User extends Authenticatable {
     {
         return $this->hasMany(\App\Models\Reply::class, 'owner_id');
     }
-
 
     public $timestamps  = false;
 

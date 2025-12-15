@@ -113,6 +113,10 @@ class ReservationController extends Controller
                 ->orderBy('time_of_visit', 'asc');
         }
 
+        if ($request->filled('date')) {
+            $query->whereDate('date_of_visit', $request->date);
+        }
+
         $reservations = $query->get();
 
         // Status filter

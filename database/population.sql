@@ -65,7 +65,7 @@ INSERT INTO restaurant_photo (restaurant_id, link, title, price, display_order) 
 (1, 'restaurant_photos/r1_photo4.png', 'Chocolate fondant', 9, 4),
 (2, 'restaurant_photos/r2_photo1.png', 'Wood-fired Margherita', 12.99, 1),
 (2, 'restaurant_photos/r2_photo2.png', 'Spiratta - burrata and spinach pizza', 14.99, 2),
-(3, 'restaurant_photos/r3_photo1.png', 'Avocado toast', 5.5, 1),
+(3, 'restaurant_photos/r3_photo2.png', 'Avocado toast', 5.5, 1),
 (4, 'restaurant_photos/r4_photo1.png', 'Classic burger', 9.6, 1),
 (4, 'restaurant_photos/r4_photo2.png', 'Our delicious loaded nachos', 6.5, 2),
 (4, 'restaurant_photos/r4_photo3.png', 'Fries with garlic sauce', 3.5, 3),
@@ -74,7 +74,7 @@ INSERT INTO restaurant_photo (restaurant_id, link, title, price, display_order) 
 (4, 'restaurant_photos/r4_photo6.png', 'A classic hot-dog', 5.99, 6),
 (4, 'restaurant_photos/r4_photo7.png', 'An oreo sundae', 5, 7),
 (5, 'restaurant_photos/r5_photo1.png', 'Deluxe sushi platter', 16, 1),
-(3, 'restaurant_photos/r3_photo2.png', 'Freshly made carbonara', 10.99, 2);
+(3, 'restaurant_photos/r3_photo1.png', 'Freshly made carbonara', 10.99, 2);
 
 -- 5. RESERVATIONS
 INSERT INTO reservation (user_id, restaurant_id, number_of_people, date_of_visit, time_of_visit, is_confirmed, is_completed, title, description, created_at) VALUES

@@ -1,6 +1,11 @@
 <div class="restaurant-card">
     <div>
-        <h2>{{ $restaurant->name }}</h2>
+        <h2>
+            @if(auth()->user()->favouriteRestaurants()->where('restaurant_id', $restaurant->id)->exists())
+                <span title="In your favourites">❤️</span>
+            @endif
+            {{ $restaurant->name }}
+        </h2>
         <p><strong>Address:</strong> {{ $restaurant->address }}</p>
         <p>{{ $restaurant->description }}</p>
     </div>

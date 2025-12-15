@@ -37,6 +37,19 @@ class RestaurantController extends Controller
         }
         $direction = $request->get('direction', 'asc');
 
+        // Favourite filtering
+        
+        $onlyFavourites = $request->boolean('only_favourites', false);
+
+        if ($onlyFavourites && $user) {
+            $favouriteIds = $user->favouriteRestaurants()->pluck('id')->toArray();
+            if (!empty($favouriteIds)) {
+                $query->whereIn('id', $favouriteIds);
+            } else {
+                $query->whereRaw('0 = 1');
+            }
+        }
+
         // Sorting
         
         if ($request->filled('sort')) {
