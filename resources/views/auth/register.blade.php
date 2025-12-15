@@ -41,23 +41,31 @@
             @enderror
         </div>
 
-        <!-- Role Selection -->
-        <div>
-            <label>Account Type</label>
-            <div style="display: flex; gap: 20px; margin-bottom: 15px;">
-                <label style="font-weight: normal;">
-                    <input type="radio" name="role" value="customer" checked> Customer (I want to book)
-                </label>
-                <label style="font-weight: normal;">
-                    <input type="radio" name="role" value="owner"> Owner (I have a restaurant)
-                </label>
-            </div>
-        </div>
-
         <div>
             <label for="password_confirmation">Confirm Password</label>
             <input type="password" name="password_confirmation" id="password_confirmation" required autocomplete="new-password">
         </div>
+
+        <!-- Role Selection -->
+        <div>
+            <label>Account Type 
+                <span class="tooltip"> ⓘ
+                    <span class="tooltip-text">In EatZy Booking you can create two types of accounts:
+                        - For a restaurant owner - It allows you to post your restaurant(s) on the site, so others can book tables at it
+                        - For a customer - It allows you to book tables at restaurants
+                    </span>
+                </span>
+            </label>
+            <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                <label style="font-weight: normal;">
+                    <input type="radio" name="role" value="customer" checked> Customer
+                </label>
+                <label style="font-weight: normal;">
+                    <input type="radio" name="role" value="owner"> Restaurant owner
+                </label>
+            </div>
+        </div>
+
         <button type="submit">Register</button>
     </form>
     <p>

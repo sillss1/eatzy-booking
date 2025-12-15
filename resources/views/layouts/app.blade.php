@@ -28,15 +28,19 @@
                         <a class="button" href="{{ route('about') }}">About</a>
                         <a class="button" href="{{ route('faq') }}">FAQ</a>
                     </div>
+                    <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
                     <a class="button" href="{{ route('login') }}">Login</a>
                     <a class="button" href="{{ route('register') }}">Register</a>
-                @else
+                @endguest
+                @auth
                     <div style="margin-right: auto;">
                         <a class="button" href="{{ route('about') }}">About</a>
                         <a class="button" href="{{ route('faq') }}">FAQ</a>
                     </div>
-                    @if (Auth::user()->isCustomer() || Auth::user()->isAdmin())
+                    @if (!Auth::user()->isOwner())
                         <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
+                    @endif
+                    @if (Auth::user()->isCustomer() || Auth::user()->isAdmin())
                         <a class="button" href="{{ route('reservations.index') }}">My Reservations</a>
                     @endif
                     @if (Auth::user()->isOwner())
@@ -49,7 +53,7 @@
                         @if (Auth::user()->isAdmin())
                             <a class="button" style="background-color: #333; border-color: #333;" href="{{ route('admin.dashboard') }}">Admin Panel</a>
                         @endif
-                @endguest
+                @endauth
             </nav>
         </header>
 
