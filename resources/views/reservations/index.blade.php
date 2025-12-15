@@ -46,6 +46,19 @@
             <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
             <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
         </select>
+        <span class="tooltip" style="margin-left: 4px;">ⓘ
+            <span class="tooltip-text">Statuses:
+                - All - all reserervation statuses,
+                - Current - reservations which are confirmed or pending,
+                - Past - reservations which are cancelled or completed,
+                - Pending - reservations which are awaiting restaurant's confirmation,
+                - Confirmed - reservations which have been confirmed by the restaurant
+                and are awaiting the reservation date,
+                - Completed - reservations past reservation date,
+                - Cancelled - reservations which have been cancelled (either by the 
+                user or the restaurant).
+            </span>
+        </span>
 
     </div>
 
@@ -55,7 +68,14 @@
         </div>
 
         <div class="date-filter" style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-right: 250px;">
-            <label for="filter-date">Filter by date:</label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="filter-date" style="margin: 0;">Filter by date:</label> 
+                <div class="tooltip" style="display: flex; align-items: center;">
+                    ⓘ
+                    <span class="tooltip-text">Show only reservations, 
+                        which are book at a concrete date</span>
+                </div>
+            </div>
             <input type="date" id="filter-date" value="{{ request('date') }}">
             <button id="clear-date">Clear the date</button>
         </div>

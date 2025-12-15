@@ -477,6 +477,70 @@ table tbody tr:hover {
     box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.25);
 }
 
+.tooltip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+    cursor: help;
+    color: #0d9488;
+    font-weight: 600;
+}
+
+.tooltip-text {
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #111827;
+    color: #ecfeff;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    max-width: 700px;
+    width: max-content;
+    box-sizing: border-box;
+    white-space: pre-line; 
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+}
+
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #111827 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltip-text {
+    opacity: 1;
+}
+
+.team-cards {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
+.team-card {
+    flex: 1;
+    min-width: 220px;
+    background-color: #ffffff;
+    border-radius: 0.8rem;
+    padding: 1rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
 
 @media (max-width: 70em) {
   main > header {

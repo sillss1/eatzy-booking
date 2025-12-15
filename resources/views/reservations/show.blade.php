@@ -44,7 +44,7 @@
 @if (Auth::id() === $reservation->user_id && $reservation->is_modifiable)
     <form action="{{ route('reservations.cancel', $reservation->id) }}" method="POST" style="display:inline;">
         @csrf
-        <button type="submit" onclick="return confirm('Are you sure you want to cancel this reservation? This action cannot be reversed')">
+        <button type="submit" class="button" onclick="return confirm('Are you sure you want to cancel this reservation? This action cannot be reversed')">
             Cancel Reservation
         </button>
     </form>
@@ -52,20 +52,20 @@
     @if($reservation->status === 'pending')
         <form method="POST" action="{{ route('reservations.confirm', $reservation->id) }}" style="display:inline">
             @csrf
-            <button type="submit" onclick="return confirm('Are you sure you want to confirm this reservation?')">
+            <button type="submit" class="button" onclick="return confirm('Are you sure you want to confirm this reservation?')">
                 Confirm
             </button>
         </form>
         <form method="POST" action="{{ route('reservations.cancel', $reservation->id) }}" style="display:inline">
             @csrf
-            <button type="submit" onclick="return confirm('Are you sure you want to cancel this reservation?')">
+            <button type="submit" class="button" onclick="return confirm('Are you sure you want to cancel this reservation?')">
                 Refuse
             </button>
         </form>
     @elseif($reservation->status === 'confirmed')
         <form method="POST" action="{{ route('reservations.cancel', $reservation->id) }}" style="display:inline">
             @csrf
-            <button type="submit" onclick="return confirm('Are you sure you want to cancel this reservation?')">
+            <button type="submit"class="button" onclick="return confirm('Are you sure you want to cancel this reservation?')">
                 Refuse
             </button>
         </form>

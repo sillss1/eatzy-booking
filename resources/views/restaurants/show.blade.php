@@ -33,8 +33,32 @@
             </p>
         @endif
     @endauth
-
-    <h2>Photos</h2>
+    
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <h2 style="margin: 0;">Photos</h2>
+        @auth
+            @if(Auth::user()->isOwner())
+                <div class="tooltip" style="display: flex; align-items: center;">
+                    ⓘ
+                    <span class="tooltip-text">These photos are visible to all EatZy Booking users</span>
+                </div>
+            @endif
+            @if(!Auth::user()->isOwner())
+                <div class="tooltip" style="display: flex; align-items: center;">
+                    ⓘ
+                    <span class="tooltip-text">These photos have been added to this restaurant's
+                        description by its owner
+                    </span>
+                </div>
+            @endif
+        @endauth
+        @guest
+            <div class="tooltip" style="display: flex; align-items: center;">
+                ⓘ
+                <span class="tooltip-text">These photos are visible to all EatZy Booking users</span>
+            </div>
+        @endguest
+    </div>
     
     @include('restaurants._photos', ['photos' => $restaurant->photos])
 

@@ -17,8 +17,7 @@ use App\Http\Controllers\ReplyController;
 |--------------------------------------------------------------------------
 */
 
-// Home -> Redireciona para Login
-Route::redirect('/', '/login');
+Route::redirect('/', '/restaurants');
 
 // -------------------------------------
 // Authentication (US01, US02, US17)
@@ -81,14 +80,17 @@ Route::middleware('auth')->controller(ReservationController::class)->group(funct
 });
 
 // -------------------------------------
+// Restaurants (Public)
+// -------------------------------------
+Route::controller(RestaurantController::class)->group(function () {
+    Route::get('/restaurants', 'index')->name('restaurants.index');
+    Route::get('/restaurants/{id}', 'show')->name('restaurants.show');
+});
+
+// -------------------------------------
 // Restaurants (Customer & Owner)
 // -------------------------------------
 Route::middleware('auth')->controller(RestaurantController::class)->group(function () {
-    // Customer / Public
-    Route::get('/restaurants', 'index')->name('restaurants.index');
-    Route::get('/restaurants/{id}', 'show')->name('restaurants.show');
-
-    // Owner (Create, Edit, Delete)
     Route::get('/owner/restaurants/create', 'create')->name('restaurants.create');
     Route::post('/owner/restaurants', 'store')->name('restaurants.store');
     Route::get('/owner/restaurants/{restaurant}/edit', 'edit')->name('restaurants.edit');

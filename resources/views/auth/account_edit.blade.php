@@ -13,8 +13,15 @@
         </div>
     @endif
 
-    <h2>Edit Profile</h2>
-
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <h2 style="margin: 0;">Edit Profile</h2>
+        <div class="tooltip" style="display: flex; align-items: center;">
+            ⓘ
+            <span class="tooltip-text">All of these information, except your email, 
+                are shown to the people visiting your profile. 
+            </span>
+        </div>
+    </div>
     @if($errors->any())
         <div style="color: red;">{{ $errors->first() }}</div>
     @endif
@@ -63,7 +70,18 @@
             <textarea name="profile_description" rows="3">{{ old('profile_description', $user->profile_description) }}</textarea>
         </div>
 
-        <button type="button" id="toggle-account-edit" class="button button-outline"> ⮟ Edit Account Details </button>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <button type="button" id="toggle-account-edit" class="button button-outline" style="margin: 0;"> ⮟ Edit Account Details </button>
+            <div class="tooltip" style="display: flex; align-items: center;">
+                ⓘ
+                <span class="tooltip-text">- Your username is your main identificator on the site. 
+                    It is visible when you book a table or review a restaurant.
+                    - Your email is a crucial part of the authentication process.
+
+                    *Both have to be unqiue
+                </span>
+            </div>
+        </div>
 
             <div id="account-edit-fields" class="account-edit-fields">
                 <div>

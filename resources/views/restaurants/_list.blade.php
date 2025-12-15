@@ -8,9 +8,11 @@
                 <div style="flex: 1;">
                     <a href="{{ route('restaurants.show', $restaurant->id) }}">
                         <strong>
+                            @auth
                             @if(auth()->user()->favouriteRestaurants()->where('restaurant_id', $restaurant->id)->exists())
                                 <span title="In your favourites">❤️</span>
                             @endif
+                            @endauth
                             {{ $restaurant->name }}</strong>
                     </a><br>
                     <span>{{ \Illuminate\Support\Str::limit($restaurant->description, ) }}</span><br>
