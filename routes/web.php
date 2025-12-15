@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RestaurantPhotoController;
+use App\Http\Controllers\FavouriteController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReplyController;
 
@@ -104,6 +105,10 @@ Route::middleware('auth')->controller(RestaurantPhotoController::class)->group(f
     Route::put('/owner/restaurants/{restaurant}/photos/{photo}', 'update')->name('restaurants.photos.update');
     Route::delete('/owner/restaurants/{restaurant}/photos/{photo}', 'destroy')->name('restaurants.photos.destroy');
 });
+
+
+Route::middleware('auth')->controller(FavouriteController::class)->group(function () {
+    Route::post('/restaurants/{id}/favourite', 'toggle')->name('restaurants.favourite.toggle');
 
 // -------------------------------------
 // Reviews (US29, US53, US54)

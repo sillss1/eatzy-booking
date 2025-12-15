@@ -21,7 +21,10 @@
 
                     @if (Auth::user()->isCustomer())
                     <span>
-                        At:
+                        At: 
+                        @if(Auth::user()->favouriteRestaurants()->where('restaurant_id', $reservation->restaurant->id)->exists())
+                            <span title="In your favourites">❤️</span>
+                        @endif
                         <a href="{{ route('restaurants.show', $reservation->restaurant->id) }}">
                             {{ $reservation->restaurant->name }}
                         </a>

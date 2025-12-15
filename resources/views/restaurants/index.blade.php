@@ -24,6 +24,11 @@
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
         </select>
+
+        <label>
+            <input type="checkbox" id="only-favourites" {{ request('only_favourites') ? 'checked' : '' }}>
+            Show only favourites
+        </label>
     </div>
 
     <div id="restaurant-list">
@@ -33,16 +38,18 @@
 
 @push('scripts')
 <script>
-   const searchInput = document.querySelector('#search');
+    const searchInput = document.querySelector('#search');
     const restaurantList = document.querySelector('#restaurant-list');
     const sortSelect = document.querySelector('#sort');
     const directionSelect = document.querySelector('#direction');
+    const favouritesCheckbox = document.querySelector('#only-favourites');
 
     function loadRestaurants() {
         const params = new URLSearchParams({
             search: searchInput.value,
             sort: sortSelect?.value,
-            direction: directionSelect?.value
+            direction: directionSelect?.value,
+            only_favourites: favouritesCheckbox.checked ? 1 : 0
         });
 
         fetch("{{ route('restaurants.index') }}?" + params, {
@@ -57,5 +64,6 @@
     searchInput.addEventListener('input', loadRestaurants);
     sortSelect.addEventListener('change', loadRestaurants);
     directionSelect.addEventListener('change', loadRestaurants);
+    favouritesCheckbox.addEventListener('change', loadRestaurants);
 </script>
 @endpush

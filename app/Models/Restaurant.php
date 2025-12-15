@@ -50,12 +50,15 @@ class Restaurant extends Model
         return $this->hasMany(RestaurantPhoto::class, 'restaurant_id')->orderBy('display_order');
     }
 
+    public function favouritedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'favourite', 'restaurant_id', 'user_id');
+    }
+
     public function reviews()
     {
         return $this->hasMany(Review::class);
     }
-
-
 
     public function scopeActive($query)
     {
