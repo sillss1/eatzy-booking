@@ -109,6 +109,7 @@ Route::middleware('auth')->controller(RestaurantPhotoController::class)->group(f
 
 Route::middleware('auth')->controller(FavouriteController::class)->group(function () {
     Route::post('/restaurants/{id}/favourite', 'toggle')->name('restaurants.favourite.toggle');
+});
 
 // -------------------------------------
 // Reviews (US29, US53, US54)
