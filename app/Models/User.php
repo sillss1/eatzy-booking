@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable {
+class User extends Authenticatable
+{
     use HasFactory, Notifiable;
 
     public function isOwner(): bool
@@ -39,7 +40,7 @@ class User extends Authenticatable {
         return $this->hasMany(\App\Models\Reply::class, 'owner_id');
     }
 
-    public $timestamps  = false;
+    public $timestamps = false;
 
     protected $table = 'user';
 
@@ -61,6 +62,7 @@ class User extends Authenticatable {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_blocked' => 'boolean',
         ];
     }
 
