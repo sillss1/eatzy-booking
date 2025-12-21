@@ -52,8 +52,8 @@ class TwoFactorController extends Controller
             return back()->withErrors(['code' => 'Invalid verification code.']);
         }
 
-        $user->two_factor_enabled = true;
-        $user->save();
+        // PostgreSQL requires explicit boolean - use update() with raw
+        $user->update(['two_factor_enabled' => \DB::raw('true')]);
 
         return redirect()->route('account.me')
             ->with('success', 'Two-factor authentication enabled successfully.');
@@ -78,7 +78,8 @@ class TwoFactorController extends Controller
             return back()->withErrors(['password' => 'Incorrect password.']);
         }
 
-        $user->disable2FA();
+        $user->two_factor_secret = null;
+        $user->update(['two_factor_enabled' => \DB::raw('false')]);
 
         return redirect()->route('account.me')
             ->with('success', 'Two-factor authentication disabled.');

@@ -15,12 +15,7 @@ class PasswordResetController extends Controller
 
     protected $redirectTo = '/login';
 
-    /**
-     * Get the password reset credentials from the request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
+    // Get credentials based on request type (forgot link or reset password)
     protected function credentials(Request $request)
     {
         // If this is the reset request (has password/token), use ResetsPasswords logic
@@ -49,14 +44,7 @@ class PasswordResetController extends Controller
         );
     }
 
-    /**
-     * Reset the given user's password.
-     * Overridden to skip remember_token update as the column doesn't exist.
-     *
-     * @param  \Illuminate\Contracts\Auth\CanResetPassword  $user
-     * @param  string  $password
-     * @return void
-     */
+    // Override to skip remember_token (our table doesn't have it)
     protected function resetPassword($user, $password)
     {
         $this->setUserPassword($user, $password);
