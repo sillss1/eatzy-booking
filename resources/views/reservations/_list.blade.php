@@ -60,7 +60,7 @@
                     </small><br>
 
                     <small>
-                        Created at: {{ $reservation->created_at }} 
+                        Created at: {{ substr($reservation->created_at, 0, 16) }}
                     </small><br>
 
                     @if(Auth::user()->isOwner() && $reservation->restaurant->owner_id == Auth::id())

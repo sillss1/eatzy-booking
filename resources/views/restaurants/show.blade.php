@@ -55,7 +55,8 @@
         @guest
             <div class="tooltip" style="display: flex; align-items: center;">
                 ⓘ
-                <span class="tooltip-text">These photos are visible to all EatZy Booking users</span>
+                <span class="tooltip-text">These photos have been added to this restaurant's
+                    description by its owner</span>
             </div>
         @endguest
     </div>
@@ -71,25 +72,6 @@
     @endauth
 
     <h2>Reviews</h2>
-
-    <script>
-        document.querySelector('.toggle-favourite').addEventListener('click', function () {
-            let restaurantId = this.dataset.id;
-
-            fetch(`/restaurants/${restaurantId}/favourite`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                this.textContent = data.favourite ? '❤️' : '🤍';
-                this.title = data.favourite ? 'Remove from favourites' : 'Add to favourites';
-            });
-        });
-    </script>
 
     @include('reviews._section')
 @endsection

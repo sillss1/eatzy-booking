@@ -31,7 +31,7 @@
         <input type="text" name="title" id="edit-photo-title">
 
         <label>Price:</label>
-        <input type="number" name="price" id="edit-photo-price" min="0">
+        <input type="number" name="price" id="edit-photo-price" min="0" step="0.01">
 
         <label>Upload Image:</label>
         <input type="file" name="photo" accept="image/*">
@@ -59,7 +59,7 @@
         @enderror
 
         <label>Price:</label>
-        <input type="number" name="price" min="0" value="{{ old('price') }}">
+        <input type="number" name="price" min="0" step="0.01" value="{{ old('price') }}">
         @error('price')
             <div style="color:red;">{{ $message }}</div>
         @enderror
@@ -86,59 +86,12 @@
         </div>
     </form>
 </div>
-
-<script>
-let currentPhotoId = null;
-
-function openEditForm(photoId) {
-    const photo = @json($photos->keyBy('id'));
-    const data = photo[photoId];
-
-    currentPhotoId = photoId;
-
-    document.getElementById('add-photo-form').style.display = 'none';
-
-    document.getElementById('edit-photo-form').style.display = 'block';
-    document.getElementById('edit-photo-title').value = data.title;
-    document.getElementById('edit-photo-price').value = data.price ?? '';
-    document.getElementById('edit-photo-order').value = data.display_order;
-
-    document.getElementById('editPhotoForm').action = `/owner/restaurants/{{ $restaurant->id }}/photos/${photoId}`;
-    document.getElementById('delete-button').style.display = 'inline-block';
-}
-
-function closeEditForm() {
-    document.getElementById('edit-photo-form').style.display = 'none';
-}
-
-function deletePhoto() {
-    if (!currentPhotoId) return;
-    if (!confirm("Are you sure you want to delete this photo?")) return;
-
-    const token = document.querySelector('#editPhotoForm input[name="_token"]').value;
-
-    fetch(`/owner/restaurants/{{ $restaurant->id }}/photos/${currentPhotoId}`, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': token }
-    }).then(res => {
-        if (res.ok) {
-            const div = document.querySelector(`.menu-slide[data-id="${currentPhotoId}"]`);
-            if(div) div.remove();
-            closeEditForm();
-        } else {
-            alert("Failed to delete photo!");
-        }
-    });
-}
-
-function openAddForm() {
-    document.getElementById('edit-photo-form').style.display = 'none';
-
-    document.getElementById('add-photo-form').style.display = 'block';
-}
-
-function closeAddForm() {
-    document.getElementById('add-photo-form').style.display = 'none';
-}
-</script>
 @endsection
+
+@push('scripts')
+<script>
+    window.restaurantId = {{ $restaurant->id }};
+    window.restaurantPhotos = @json($photos->keyBy('id'));
+</script>
+<script src="{{ asset('js/manage-photos.js') }}" defer></script>
+@endpush

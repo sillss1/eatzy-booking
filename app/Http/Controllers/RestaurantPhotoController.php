@@ -20,15 +20,15 @@ class RestaurantPhotoController extends Controller
     }
 
     $request->validate([
-        'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096',
+        'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         'title' => 'nullable|string|max:255',
-        'price' => 'nullable|integer|min:0',
+        'price' => 'nullable|numeric|min:0',
         'display_order' => "required|integer|min:1|max:" . ($restaurant->photos()->count() + 1),
     ], [
         'photo.required' => 'You must select a photo to upload.',
         'photo.image' => 'The file must be an image.',
         'photo.mimes' => 'Allowed image types: jpeg, png, jpg, gif.',
-        'photo.max' => 'Maximum file size is 4 MB.',
+        'photo.max' => 'Maximum file size is 2 MB.',
     ]);
 
     $file = $request->file('photo');
@@ -79,9 +79,9 @@ class RestaurantPhotoController extends Controller
 
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
-            'price' => 'nullable|integer|min:0',
+            'price' => 'nullable|numeric|min:0',
             'display_order' => "required|integer|min:1|max:$maxOrder",
-            'photo' => 'nullable|image|max:4096',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($validated['display_order'] != $photo->display_order) {

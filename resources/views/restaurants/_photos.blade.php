@@ -16,31 +16,15 @@
         </div>
     @endif
 
-    <div id="photo-popup" style="
-        display:none; 
-        position:fixed; 
-        top:0; left:0; 
-        width:100%; height:100%; 
-        background: rgba(0,0,0,0.8); 
-        z-index:1000;
-        justify-content:center; 
-        align-items:center;">
-        <div style="position:relative; display:flex; flex-direction:column; align-items:center;">
-            <span style="position:absolute; top:-20px; right:-30px; font-size:40px; color:white; cursor:pointer;"
-                onclick="closePhotoPopup()">&times;</span>
-            <img id="popup-img" src="" style="max-width:90%; max-height:80%;">
-            <div id="popup-caption" style="color:white; margin-top:10px; text-align:center;"></div>
+    <div id="photo-popup" class="photo-popup">
+        <div class="photo-popup-inner">
+            <span class="photo-popup-close" onclick="closePhotoPopup()">&times;</span>
+            <img id="popup-img" class="photo-popup-img" src="">
+            <div id="popup-caption" class="photo-popup-caption"></div>
         </div>
     </div>
 
-    <script>
-    function openPhotoPopup(src, title) {
-        document.getElementById('popup-img').src = src;
-        document.getElementById('popup-caption').innerText = title || '';
-        document.getElementById('photo-popup').style.display = 'flex';
-    }
+    @push('scripts')
+        <script src="{{ asset('js/photo-popup.js') }}" defer></script>
+    @endpush
 
-    function closePhotoPopup() {
-        document.getElementById('photo-popup').style.display = 'none';
-    }
-    </script>

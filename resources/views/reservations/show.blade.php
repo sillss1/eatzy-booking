@@ -35,9 +35,9 @@
     @endif
     <p><strong>Description:</strong> {{ $reservation->description ?? '-' }}</p>
     <p><strong>Status:</strong> {{ ucfirst($reservation->status) }}</p>
-    <p><strong>Created At:</strong> {{ $reservation->created_at }}</p>
+    <p><strong>Created At:</strong> {{ substr($reservation->created_at, 0, 16) }}</p>
     @if ($reservation->edited_at)
-        <p><strong>Edited At:</strong> {{ $reservation->edited_at }}</p>
+        <p><strong>Edited At:</strong> {{ substr($reservation->edited_at, 0, 16) }}</p>
     @endif
 </div>
 

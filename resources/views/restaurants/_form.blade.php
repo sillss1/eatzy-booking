@@ -67,7 +67,6 @@
     <input type="text" name="sun_hours" value="{{ old('sun_hours', isset($oh['sun']) ? implode(', ', (array) $oh['sun']) : '') }}">
 </div>
 
-{{-- ERROR MESSAGE FOR OPENING HOURS --}}
 @error('opening_hours')
     <div class="error" style="color: red; margin-top: 5px;">
         {{ $message }}

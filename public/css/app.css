@@ -619,6 +619,45 @@ table tbody tr:hover {
     border-radius: 10px;
 }
 
+.photo-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.photo-popup-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.photo-popup-close {
+    position: absolute;
+    top: -20px;
+    right: -30px;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+}
+
+.photo-popup-img {
+    max-width: 90%;
+    max-height: 80%;
+}
+
+.photo-popup-caption {
+    color: white;
+    margin-top: 10px;
+    text-align: center;
+}
 
 .reply-form {
     margin-top: 1rem !important;

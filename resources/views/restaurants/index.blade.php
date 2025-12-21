@@ -44,32 +44,7 @@
 
 @push('scripts')
 <script>
-    const searchInput = document.querySelector('#search');
-    const restaurantList = document.querySelector('#restaurant-list');
-    const sortSelect = document.querySelector('#sort');
-    const directionSelect = document.querySelector('#direction');
-    const favouritesCheckbox = document.querySelector('#only-favourites');
-
-    function loadRestaurants() {
-        const params = new URLSearchParams({
-            search: searchInput.value,
-            sort: sortSelect?.value,
-            direction: directionSelect?.value,
-            only_favourites: favouritesCheckbox?.checked ? 1 : 0
-        });
-
-        fetch("{{ route('restaurants.index') }}?" + params, {
-            headers: { "X-Requested-With": "XMLHttpRequest" }
-        })
-        .then(r => r.json())
-        .then(data => {
-            restaurantList.innerHTML = data.html;
-        });
-    }
-
-    searchInput.addEventListener('input', loadRestaurants);
-    sortSelect.addEventListener('change', loadRestaurants);
-    directionSelect.addEventListener('change', loadRestaurants);
-    favouritesCheckbox.addEventListener('change', loadRestaurants);
+    window.restaurantIndexUrl = "{{ route('restaurants.index') }}";
 </script>
+<script src="{{ asset('js/restaurant-filters.js') }}" defer></script>
 @endpush
