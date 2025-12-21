@@ -39,11 +39,14 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 // -------------------------------------
 // Password Recovery
 // -------------------------------------
-Route::controller(PasswordResetController::class)->group(function () {
-    Route::get('/password/forgot', 'showForgotForm')->name('password.forgot');
-    Route::post('/password/email', 'sendResetLink')->name('password.email');
+// -------------------------------------
+// Password Recovery
+// -------------------------------------
+Route::controller(PasswordResetController::class)->middleware('throttle:6,1')->group(function () {
+    Route::get('/password/forgot', 'showLinkRequestForm')->name('password.forgot');
+    Route::post('/password/email', 'sendResetLinkEmail')->name('password.email');
     Route::get('/password/reset/{token}', 'showResetForm')->name('password.reset');
-    Route::post('/password/reset', 'resetPassword')->name('password.update');
+    Route::post('/password/reset', 'reset')->name('password.update');
 });
 
 // -------------------------------------

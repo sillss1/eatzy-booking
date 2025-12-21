@@ -2,102 +2,71 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\MailModel;
-use App\Models\User;
-use App\Models\PasswordReset;
-use Illuminate\Support\Facades\Hash;
 
 class PasswordResetController extends Controller
 {
-    // Show forgot password form
-    public function showForgotForm()
+    use SendsPasswordResetEmails, ResetsPasswords {
+        ResetsPasswords::credentials insteadof SendsPasswordResetEmails;
+        ResetsPasswords::broker insteadof SendsPasswordResetEmails;
+    }
+
+    protected $redirectTo = '/login';
+
+    /**
+     * Get the password reset credentials from the request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    protected function credentials(Request $request)
+    {
+        // If this is the reset request (has password/token), use ResetsPasswords logic
+        if ($request->has('password')) {
+            return $request->only(
+                'email',
+                'password',
+                'password_confirmation',
+                'token'
+            );
+        }
+
+        // Otherwise it's the send link request
+        return $request->only('email');
+    }
+
+    public function showLinkRequestForm()
     {
         return view('auth.password.forgot');
     }
 
-    // Handle forgot password request
-    public function sendResetLink(Request $request)
+    public function showResetForm(Request $request, $token = null)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        // Don't reveal if email exists (security)
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user) {
-            return back()->with('success', 'If that email exists, a reset link has been sent.');
-        }
-
-        $token = PasswordReset::createToken($request->email);
-        $resetLink = url('/password/reset/' . $token);
-
-        // Check if mail is configured
-        if (!env('MAIL_HOST') || !env('MAIL_USERNAME')) {
-            return back()->with('success', 'Mail not configured. Reset link: ' . $resetLink);
-        }
-
-        try {
-            $mailData = [
-                'subject' => 'Reset Your Password - EatZy',
-                'view' => 'emails.reset-password',
-                'resetUrl' => $resetLink,
-                'name' => $user->name,
-            ];
-
-            Mail::to($user->email)->send(new MailModel($mailData));
-            return back()->with('success', 'Password reset link sent to your email!');
-        } catch (\Exception $e) {
-            // Fallback: show link if email fails
-            return back()->with('success', 'Email service error. Reset link: ' . $resetLink);
-        }
+        return view('auth.password.reset')->with(
+            ['token' => $token, 'email' => $request->email]
+        );
     }
 
-    // Show reset password form
-    public function showResetForm($token)
+    /**
+     * Reset the given user's password.
+     * Overridden to skip remember_token update as the column doesn't exist.
+     *
+     * @param  \Illuminate\Contracts\Auth\CanResetPassword  $user
+     * @param  string  $password
+     * @return void
+     */
+    protected function resetPassword($user, $password)
     {
-        $reset = PasswordReset::findByToken($token);
+        $this->setUserPassword($user, $password);
 
-        if (!$reset) {
-            return redirect()->route('password.forgot')
-                ->withErrors(['msg' => 'Invalid or expired reset link.']);
-        }
+        // $user->setRememberToken(Str::random(60)); // Skipped: Table lacks remember_token
 
-        return view('auth.password.reset', compact('token'));
-    }
-
-    // Handle password reset
-    public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'token' => 'required',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $reset = PasswordReset::findByToken($request->token);
-
-        if (!$reset) {
-            return redirect()->route('password.forgot')
-                ->withErrors(['msg' => 'Invalid or expired reset link.']);
-        }
-
-        $user = User::where('email', $reset->email)->first();
-
-        if (!$user) {
-            return redirect()->route('password.forgot')
-                ->withErrors(['msg' => 'User not found.']);
-        }
-
-        // Update password
-        $user->password = Hash::make($request->password);
         $user->save();
 
-        // Delete used token
-        $reset->delete();
+        event(new \Illuminate\Auth\Events\PasswordReset($user));
 
-        return redirect()->route('login')
-            ->with('success', 'Password reset successfully. Please login.');
+        $this->guard()->login($user);
     }
 }

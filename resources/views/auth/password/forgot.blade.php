@@ -6,15 +6,17 @@
     <div class="container">
         <h2>Forgot Password</h2>
 
-        @if (session('success'))
-            <div style="color: green; padding: 10px; background: #e8f5e9; margin-bottom: 15px;">
-                {{ session('success') }}
+        @if (session('status'))
+            <div class="alert alert-success"
+                style="color: #155724; padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; margin-bottom: 20px;">
+                ✅ {{ session('status') }}
             </div>
         @endif
 
         @if ($errors->any())
-            <div style="color: red;">
-                <ul>
+            <div class="alert alert-danger"
+                style="color: #721c24; padding: 15px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 20px;">
+                <ul style="margin: 0; padding-left: 20px;">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach

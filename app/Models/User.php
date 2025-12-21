@@ -165,4 +165,19 @@ class User extends Authenticatable
         'two_factor_enabled' => 'boolean',
     ];
 
+
+    // Override standard reset notification to use our custom MailModel
+    public function sendPasswordResetNotification($token)
+    {
+        $resetUrl = url(route('password.reset', ['token' => $token], false));
+
+        $mailData = [
+            'subject' => 'Reset Your Password - EatZy',
+            'view' => 'emails.reset-password',
+            'resetUrl' => $resetUrl,
+            'name' => $this->name,
+        ];
+
+        \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\MailModel($mailData));
+    }
 }
