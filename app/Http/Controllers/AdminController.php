@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Owner;
+use App\Models\Customer;
+use App\Models\Admin;
+use App\Models\Restaurant;
+use App\Models\Review;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,12 +17,11 @@ class AdminController extends Controller
     // US47: Admin Dashboard
     public function index()
     {
-        // Contagens simples para o dashboard
         $stats = [
             'users' => User::count(),
-            'owners' => DB::table('owner')->count(),
-            'customers' => DB::table('customer')->count(),
-            'restaurants' => DB::table('restaurant')->count(),
+            'owners' => Owner::count(),
+            'customers' => Customer::count(),
+            'restaurants' => Restaurant::count(),
         ];
 
         return view('admin.dashboard', compact('stats'));
@@ -28,42 +32,29 @@ class AdminController extends Controller
     {
         $query = User::query();
 
-        // Search by Name or Email - Full-Text and Exact-Match
         if ($request->filled('search')) {
             $search = $request->search;
-
-            $query->where(function ($q) use ($search) {
+            $query->where(function($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
-                    ->orWhere('email', 'ilike', "%{$search}%")
-                    ->orWhere('username', 'ilike', "%{$search}%")
-
-                    ->orWhere('name', $search)
-                    ->orWhere('email', $search)
-                    ->orWhere('username', $search);
+                  ->orWhere('email', 'ilike', "%{$search}%")
+                  ->orWhere('username', 'ilike', "%{$search}%");
             });
         }
 
-        // Filter by Role
         if ($request->filled('role')) {
-            if ($request->role === 'owner') {
-                $query->whereIn('id', function ($q) {
-                    $q->select('id')->from('owner');
-                });
-            } elseif ($request->role === 'customer') {
-                $query->whereIn('id', function ($q) {
-                    $q->select('id')->from('customer');
-                });
-            } elseif ($request->role === 'admin') {
-                $query->whereIn('id', function ($q) {
-                    $q->select('id')->from('administrator');
-                });
+            $role = $request->role;
+            if ($role === 'owner') {
+                $query->whereHas('owner');
+            } elseif ($role === 'customer') {
+                $query->whereHas('customer');
+            } elseif ($role === 'admin') {
+                $query->whereHas('admin');
             }
         }
 
-        // Não mostrar o próprio admin na lista (para não se apagar a si mesmo)
         $query->where('id', '!=', Auth::id());
 
-        $users = $query->orderBy('id', 'desc')->paginate(20);
+        $users = $query->orderByDesc('id')->paginate(20);
 
         return view('admin.users', compact('users'));
     }
@@ -73,26 +64,23 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // Impedir apagar outros admins (opcional, mas seguro)
         if ($user->isAdmin()) {
             return back()->withErrors(['msg' => 'Cannot delete another administrator via this panel.']);
         }
 
         try {
-            // Reutilizar a lógica robusta de anonimização (Hard Delete + Nullify)
-            DB::transaction(function () use ($user) {
-                DB::table('review')->where('user_id', $user->id)->update(['user_id' => null]);
-                DB::table('reply')->where('user_id', $user->id)->update(['user_id' => null]);
-                DB::table('reservation')->where('user_id', $user->id)->update(['user_id' => null]);
-                DB::table('waitlist')->where('user_id', $user->id)->update(['user_id' => null]);
-                DB::table('notification')->where('user_id', $user->id)->update(['user_id' => null]);
+            DB::transaction(function() use ($user) {
+                $user->reviews()->update(['user_id' => null]);
+                $user->replies()->update(['user_id' => null]);
+                $user->reservations()->update(['user_id' => null]);
+                $user->notifications()->update(['user_id' => null]);
 
-                DB::table('favourite')->where('user_id', $user->id)->delete();
-                DB::table('customer')->where('id', $user->id)->delete();
-                DB::table('owner')->where('id', $user->id)->delete();
+                $user->favouriteRestaurants()->detach();
 
-                // Finalmente apaga o user
-                DB::table('user')->where('id', $user->id)->delete();
+                $user->customer?->delete();
+                $user->owner?->delete();
+
+                $user->delete();
             });
 
             return back()->with('success', 'User deleted successfully.');
@@ -111,7 +99,7 @@ class AdminController extends Controller
             return back()->withErrors(['msg' => 'Cannot block another administrator.']);
         }
 
-        DB::table('user')->where('id', $id)->update(['is_blocked' => DB::raw('true')]);
+        $user->update(['is_blocked' => DB::raw('true')]);
 
         return back()->with('success', 'User blocked successfully.');
     }
@@ -121,7 +109,9 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
 
+        // No idea why, but setting this value to false only works with a full querry builder. Appearently this laravel version's common bug
         DB::table('user')->where('id', $id)->update(['is_blocked' => DB::raw('false')]);
+
 
         return back()->with('success', 'User unblocked successfully.');
     }
@@ -163,17 +153,17 @@ class AdminController extends Controller
 
     public function listRestaurants(Request $request)
     {
-        $query = \App\Models\Restaurant::query();
+        $query = Restaurant::query();
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
-                    ->orWhere('address', 'ilike', "%{$search}%");
+                  ->orWhere('address', 'ilike', "%{$search}%");
             });
         }
 
-        $restaurants = $query->orderBy('id', 'desc')->paginate(20);
+        $restaurants = $query->orderByDesc('id')->paginate(20);
         return view('admin.resources', compact('restaurants'))->with('tab', 'restaurants');
     }
 
@@ -192,7 +182,7 @@ class AdminController extends Controller
             'capacity' => 'required|integer|min:1',
         ]);
 
-        \App\Models\Restaurant::create([
+        Restaurant::create([
             'owner_id' => null,
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -216,13 +206,13 @@ class AdminController extends Controller
 
     public function editRestaurant($id)
     {
-        $restaurant = \App\Models\Restaurant::findOrFail($id);
+        $restaurant = Restaurant::findOrFail($id);
         return view('admin.restaurants.edit', compact('restaurant'));
     }
 
     public function updateRestaurant(Request $request, $id)
     {
-        $restaurant = \App\Models\Restaurant::findOrFail($id);
+        $restaurant = Restaurant::findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -239,7 +229,7 @@ class AdminController extends Controller
 
     public function deleteRestaurant($id)
     {
-        $restaurant = \App\Models\Restaurant::findOrFail($id);
+        $restaurant = Restaurant::findOrFail($id);
         $restaurant->closed_at = now();
         $restaurant->save();
 
@@ -250,9 +240,9 @@ class AdminController extends Controller
 
     public function listReviews(Request $request)
     {
-        $reviews = \App\Models\Review::with(['user', 'restaurant'])
+        $reviews = Review::with(['user', 'restaurant'])
             ->whereNull('deleted_at')
-            ->orderBy('id', 'desc')
+            ->orderByDesc('id')
             ->paginate(20);
 
         return view('admin.resources', compact('reviews'))->with('tab', 'reviews');
@@ -260,13 +250,13 @@ class AdminController extends Controller
 
     public function editReview($id)
     {
-        $review = \App\Models\Review::findOrFail($id);
+        $review = Review::findOrFail($id);
         return view('admin.reviews.edit', compact('review'));
     }
 
     public function updateReview(Request $request, $id)
     {
-        $review = \App\Models\Review::findOrFail($id);
+        $review = Review::findOrFail($id);
 
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
@@ -284,7 +274,7 @@ class AdminController extends Controller
 
     public function deleteReview($id)
     {
-        $review = \App\Models\Review::findOrFail($id);
+        $review = Review::findOrFail($id);
         $review->delete();
 
         return back()->with('success', 'Review deleted successfully.');

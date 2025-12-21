@@ -121,22 +121,22 @@ class UserController extends Controller
             try {
                 DB::transaction(function () use ($user) {
                     // 1. Anonymize Data (Set user_id to NULL)
-                    DB::table('review')->where('user_id', $user->id)->update(['user_id' => null]);
-                    DB::table('reply')->where('user_id', $user->id)->update(['user_id' => null]);
-                    DB::table('reservation')->where('user_id', $user->id)->update(['user_id' => null]);
-                    DB::table('waitlist')->where('user_id', $user->id)->update(['user_id' => null]);
-                    DB::table('notification')->where('user_id', $user->id)->update(['user_id' => null]);
+                    $user->reviews()->update(['user_id' => null]);
+                    $user->replies()->update(['user_id' => null]);
+                    $user->reservations()->update(['user_id' => null]);
+                    $user->notifications()->update(['user_id' => null]);
+
 
                     // 2. Hard Delete Private Data
-                    DB::table('favourite')->where('user_id', $user->id)->delete();
+                    $user->favouriteRestaurants()->detach();
 
                     // 3. Handle Roles 
-                    DB::table('customer')->where('id', $user->id)->delete();
-                    DB::table('owner')->where('id', $user->id)->delete();
-                    DB::table('administrator')->where('id', $user->id)->delete();
+                    $user->customer?->delete();
+                    $user->owner?->delete();
+                    $user->administrator?->delete();
 
                     // 4. Delete the User
-                    DB::table('user')->where('id', $user->id)->delete();
+                    $user->delete();
                 });
 
                 Auth::logout();

@@ -32,12 +32,22 @@ class User extends Authenticatable
 
     public function reviews()
     {
-        return $this->hasMany(Review::class, 'customer_id');
+        return $this->hasMany(Review::class, 'user_id');
     }
 
     public function replies()
     {
-        return $this->hasMany(\App\Models\Reply::class, 'owner_id');
+        return $this->hasMany(Reply::class, 'user_id');
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'user_id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id');
     }
 
     public $timestamps = false;
@@ -50,6 +60,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'is_blocked', 
     ];
 
     protected $hidden = [
@@ -57,13 +68,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_blocked' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_blocked' => 'boolean'
+    ];
 
 }
