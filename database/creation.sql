@@ -523,3 +523,4 @@ CREATE OR REPLACE TRIGGER validate_opening_hours
     BEFORE INSERT OR UPDATE ON reservation
     FOR EACH ROW
     EXECUTE FUNCTION check_opening_hours();
+
