@@ -28,6 +28,13 @@ class AuthController extends Controller
                     'email' => 'Your account has been blocked.',
                 ]);
             }
+            // Check for 2FA
+            if (Auth::user()->two_factor_enabled) {
+                $userId = Auth::user()->id;
+                Auth::logout();
+                $request->session()->put('2fa:user_id', $userId);
+                return redirect()->route('2fa.verify');
+            }
             $request->session()->regenerate();
             return redirect()->intended('/restaurants');
         }

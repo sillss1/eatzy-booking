@@ -12,6 +12,8 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\TwoFactorController;
 
 
 /*
@@ -35,6 +37,31 @@ Route::middleware('guest')->controller(AuthController::class)->group(function ()
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // -------------------------------------
+// Password Recovery
+// -------------------------------------
+Route::controller(PasswordResetController::class)->group(function () {
+    Route::get('/password/forgot', 'showForgotForm')->name('password.forgot');
+    Route::post('/password/email', 'sendResetLink')->name('password.email');
+    Route::get('/password/reset/{token}', 'showResetForm')->name('password.reset');
+    Route::post('/password/reset', 'resetPassword')->name('password.update');
+});
+
+// -------------------------------------
+// Two-Factor Authentication
+// -------------------------------------
+// 2FA verification (during login, no auth required)
+Route::get('/2fa/verify', [TwoFactorController::class, 'showVerify'])->name('2fa.verify');
+Route::post('/2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.verify.submit');
+
+// 2FA management (requires auth)
+Route::middleware('auth')->controller(TwoFactorController::class)->group(function () {
+    Route::get('/2fa/setup', 'showSetup')->name('2fa.setup');
+    Route::post('/2fa/enable', 'enable')->name('2fa.enable');
+    Route::get('/2fa/disable', 'showDisable')->name('2fa.disable');
+    Route::post('/2fa/disable', 'disable')->name('2fa.disable.submit');
+});
+
+// -------------------------------------
 // Static Pages (US08, US09)
 // -------------------------------------
 Route::get('/about', [StaticPageController::class, 'about'])->name('about');
@@ -49,6 +76,8 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
 
     // User Management
     Route::get('/users', [AdminController::class, 'listUsers'])->name('admin.users');
+    Route::get('/users/create', [AdminController::class, 'createUser'])->name('admin.users.create');
+    Route::post('/users', [AdminController::class, 'storeUser'])->name('admin.users.store');
     Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
     Route::post('/users/{id}/block', [AdminController::class, 'blockUser'])->name('admin.users.block');
     Route::post('/users/{id}/unblock', [AdminController::class, 'unblockUser'])->name('admin.users.unblock');

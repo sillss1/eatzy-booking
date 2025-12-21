@@ -34,10 +34,10 @@ class AdminController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('email', 'ilike', "%{$search}%")
-                  ->orWhere('username', 'ilike', "%{$search}%");
+                    ->orWhere('email', 'ilike', "%{$search}%")
+                    ->orWhere('username', 'ilike', "%{$search}%");
             });
         }
 
@@ -69,7 +69,7 @@ class AdminController extends Controller
         }
 
         try {
-            DB::transaction(function() use ($user) {
+            DB::transaction(function () use ($user) {
                 $user->reviews()->update(['user_id' => null]);
                 $user->replies()->update(['user_id' => null]);
                 $user->reservations()->update(['user_id' => null]);
@@ -149,6 +149,29 @@ class AdminController extends Controller
         return redirect()->route('admin.users')->with('success', 'User updated successfully.');
     }
 
+    // Create User Form
+    public function createUser()
+    {
+        return view('admin.users.create');
+    }
+
+    // Store new User
+    public function storeUser(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:250',
+            'surname' => 'required|string|max:250',
+            'username' => 'required|string|max:250|unique:user',
+            'email' => 'required|email|max:250|unique:user',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:customer,owner,admin',
+        ]);
+
+        User::createWithRole($validated);
+
+        return redirect()->route('admin.users')->with('success', 'User created successfully.');
+    }
+
     // ===== RESTAURANT MANAGEMENT =====
 
     public function listRestaurants(Request $request)
@@ -159,7 +182,7 @@ class AdminController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('address', 'ilike', "%{$search}%");
+                    ->orWhere('address', 'ilike', "%{$search}%");
             });
         }
 
