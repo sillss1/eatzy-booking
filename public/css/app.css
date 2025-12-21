@@ -371,7 +371,6 @@ table tbody tr:hover {
     0 20px 50px -10px rgba(13, 148, 136, 0.15);
   border: 1px solid rgba(20, 184, 166, 0.15);
   position: relative;
-  overflow: hidden;
 }
 
 .auth-card::before {

@@ -65,6 +65,7 @@
                     </a>
 
                     <a class="button" href="{{ route('account.me') }}">{{ Auth::user()->name }}</a>
+                    <a class="button" href="{{ route('2fa.setup') }}">2FA Setup</a>
                     <a class="button" href="{{ url('/logout') }}">Logout</a>
 
                     @if (Auth::user()->isAdmin())
