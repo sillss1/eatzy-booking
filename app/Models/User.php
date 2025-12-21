@@ -44,12 +44,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Reservation::class, 'user_id');
     }
-
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class, 'user_id');
-    }
-
     public function updateProfile(array $data, ?\Illuminate\Http\UploadedFile $picture = null, bool $removePicture = false)
     {
         if ($removePicture && $this->profile_picture) {
