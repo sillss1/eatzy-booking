@@ -33,13 +33,13 @@
 
                 @auth
                     @php
-                    $unreadNotifications = 0;
-                    try {
-                        $unreadNotifications = Auth::user()->unreadNotifications()->count();
-                    } catch (\Throwable $e) {
                         $unreadNotifications = 0;
-                    }
-                @endphp
+                        try {
+                            $unreadNotifications = Auth::user()->unreadNotifications()->count();
+                        } catch (\Throwable $e) {
+                            $unreadNotifications = 0;
+                        }
+                    @endphp
 
                     <div style="margin-right: auto;">
                         <a class="button" href="{{ route('about') }}">About</a>
@@ -68,7 +68,8 @@
                     <a class="button" href="{{ url('/logout') }}">Logout</a>
 
                     @if (Auth::user()->isAdmin())
-                        <a class="button" style="background-color: #333; border-color: #333;" href="{{ route('admin.dashboard') }}">
+                        <a class="button" style="background-color: #333; border-color: #333;"
+                            href="{{ route('admin.dashboard') }}">
                             Admin Panel
                         </a>
                     @endif
@@ -79,6 +80,11 @@
         <section id="content">
             @yield('content')
         </section>
+
+        <footer>
+            <p>&copy; {{ date('Y') }} <a href="{{ route('restaurants.index') }}">EatZy Booking</a> — Modern Restaurant
+                Reservations</p>
+        </footer>
     </main>
 
     @stack('scripts')
