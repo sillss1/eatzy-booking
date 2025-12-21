@@ -50,6 +50,56 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class, 'user_id');
     }
 
+    public function updateProfile(array $data, ?\Illuminate\Http\UploadedFile $picture = null, bool $removePicture = false)
+    {
+        if ($removePicture && $this->profile_picture) {
+            \Storage::disk('public')->delete($this->profile_picture);
+            $this->profile_picture = null;
+        }
+
+        if (isset($data['username'])) $this->username = $data['username'];
+        if (isset($data['email']) && $data['email'] !== $this->email) {
+            $this->email = $data['email'];
+        }
+        $this->name = $data['name'] ?? $this->name;
+        $this->surname = $data['surname'] ?? $this->surname;
+        $this->profile_description = $data['profile_description'] ?? $this->profile_description;
+
+        if ($picture) {
+            if ($this->profile_picture) {
+                \Storage::disk('public')->delete($this->profile_picture);
+            }
+            $this->profile_picture = $picture->store('profiles', 'public');
+        }
+
+        $this->save();
+    }
+
+    public function deleteAccount()
+    {
+        \DB::transaction(function () {
+            $this->reviews()->update(['user_id' => null]);
+            $this->replies()->update(['user_id' => null]);
+            $this->reservations()->update(['user_id' => null]);
+            $this->notifications()->update(['user_id' => null]);
+
+            $this->favouriteRestaurants()->detach();
+
+            $this->customer?->delete();
+            $this->owner?->delete();
+            $this->administrator?->delete();
+
+            $this->delete();
+        });
+    }
+
+    public function block(bool $state)
+    {
+        $this->is_blocked = $state;
+        $this->save();
+    }
+
+
     public $timestamps = false;
 
     protected $table = 'user';
@@ -69,7 +119,6 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_blocked' => 'boolean'
     ];
