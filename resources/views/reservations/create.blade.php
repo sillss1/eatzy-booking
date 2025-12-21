@@ -55,7 +55,7 @@
                 </div>
 
                 @if(session('error'))
-                    <p>{{ session('error') }}</p>
+                    <p class="alert alert-error">{{ session('error') }}</p>
                 @endif
 
                 <button type="submit">Create Reservation</button>

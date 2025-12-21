@@ -8,12 +8,10 @@
 
     <title>@yield('title', config('app.name', 'Laravel'))</title>
 
-    <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('css/milligram.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @stack('styles')
 
-    <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
 </head>
 
@@ -32,27 +30,48 @@
                     <a class="button" href="{{ route('login') }}">Login</a>
                     <a class="button" href="{{ route('register') }}">Register</a>
                 @endguest
+
                 @auth
+                    @php
+                    $unreadNotifications = 0;
+                    try {
+                        $unreadNotifications = Auth::user()->unreadNotifications()->count();
+                    } catch (\Throwable $e) {
+                        $unreadNotifications = 0;
+                    }
+                @endphp
+
                     <div style="margin-right: auto;">
                         <a class="button" href="{{ route('about') }}">About</a>
                         <a class="button" href="{{ route('faq') }}">FAQ</a>
                     </div>
+
                     @if (!Auth::user()->isOwner())
                         <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
                     @endif
+
                     @if (Auth::user()->isCustomer() || Auth::user()->isAdmin())
                         <a class="button" href="{{ route('reservations.index') }}">My Reservations</a>
                     @endif
+
                     @if (Auth::user()->isOwner())
                         <a class="button" href="{{ route('restaurants.create') }}">Add Restaurant</a>
                         <a class="button" href="{{ route('restaurants.index') }}">My Restaurants</a>
                         <a class="button" href="{{ route('reservations.index') }}">Reservations</a>
                     @endif
+
+                    <a class="button" href="{{ route('notifications.index') }}">
+                        Notifications{{ $unreadNotifications > 0 ? " ($unreadNotifications)" : "" }}
+                    </a>
+
                     <a class="button" href="{{ route('account.me') }}">{{ Auth::user()->name }}</a>
                     <a class="button" href="{{ url('/logout') }}">Logout</a>
-                        @if (Auth::user()->isAdmin())
-                            <a class="button" style="background-color: #333; border-color: #333;" href="{{ route('admin.dashboard') }}">Admin Panel</a>
-                        @endif
+
+                    @if (Auth::user()->isAdmin())
+                        <a class="button" style="background-color: #333; border-color: #333;" href="{{ route('admin.dashboard') }}">
+                            Admin Panel
+                        </a>
+                    @endif
                 @endauth
             </nav>
         </header>
