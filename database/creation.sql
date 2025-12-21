@@ -77,7 +77,9 @@ CREATE TABLE "user" (
     is_blocked BOOLEAN NOT NULL DEFAULT false,
     profile_picture TEXT,
     profile_description TEXT,
-    deleted_at TIMESTAMP
+    deleted_at TIMESTAMP,
+    two_factor_secret TEXT,
+    two_factor_enabled BOOLEAN NOT NULL DEFAULT false
 );
 
 CREATE TABLE "administrator" (
@@ -197,6 +199,13 @@ CREATE TABLE "reservation_notification" (
 CREATE TABLE "offer_notification" (
     notification_id INTEGER PRIMARY KEY REFERENCES "notification"(id) ON DELETE CASCADE,
     offer_id INTEGER REFERENCES "offer"(id) ON DELETE CASCADE
+);
+
+CREATE TABLE "password_reset" (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    email TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX review_restaurant_idx ON review USING btree (restaurant_id);

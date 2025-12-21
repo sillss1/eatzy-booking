@@ -33,6 +33,35 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 // -------------------------------------
+// Password Recovery
+// -------------------------------------
+use App\Http\Controllers\PasswordResetController;
+
+Route::controller(PasswordResetController::class)->group(function () {
+    Route::get('/password/forgot', 'showForgotForm')->name('password.forgot');
+    Route::post('/password/email', 'sendResetLink')->name('password.email');
+    Route::get('/password/reset/{token}', 'showResetForm')->name('password.reset');
+    Route::post('/password/reset', 'resetPassword')->name('password.update');
+});
+
+// -------------------------------------
+// Two-Factor Authentication
+// -------------------------------------
+use App\Http\Controllers\TwoFactorController;
+
+// 2FA verification (during login, no auth required)
+Route::get('/2fa/verify', [TwoFactorController::class, 'showVerify'])->name('2fa.verify');
+Route::post('/2fa/verify', [TwoFactorController::class, 'verify'])->name('2fa.verify.submit');
+
+// 2FA management (requires auth)
+Route::middleware('auth')->controller(TwoFactorController::class)->group(function () {
+    Route::get('/2fa/setup', 'showSetup')->name('2fa.setup');
+    Route::post('/2fa/enable', 'enable')->name('2fa.enable');
+    Route::get('/2fa/disable', 'showDisable')->name('2fa.disable');
+    Route::post('/2fa/disable', 'disable')->name('2fa.disable.submit');
+});
+
+// -------------------------------------
 // ADMIN PANEL (US47, US48, US49, US50)
 // -------------------------------------
 // Agora usamos 'auth' E 'is_admin'
@@ -56,6 +85,11 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
         ->name('admin.users.edit');
     Route::put('/users/{id}', [App\Http\Controllers\AdminController::class, 'updateUser'])
         ->name('admin.users.update');
+    // Create User
+    Route::get('/users/create', [App\Http\Controllers\AdminController::class, 'createUser'])
+        ->name('admin.users.create');
+    Route::post('/users', [App\Http\Controllers\AdminController::class, 'storeUser'])
+        ->name('admin.users.store');
 
     // ===== RESOURCE MANAGEMENT =====
     Route::get('/resources', [App\Http\Controllers\AdminController::class, 'listRestaurants'])
