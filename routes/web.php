@@ -10,6 +10,8 @@ use App\Http\Controllers\RestaurantPhotoController;
 use App\Http\Controllers\FavouriteController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReplyController;
+use App\Http\Controllers\NotificationController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -135,4 +137,10 @@ Route::middleware('auth')->controller(ReplyController::class)->group(function ()
     Route::get('/replies/{reply}/edit', 'edit')->name('replies.edit');
     Route::put('/replies/{reply}', 'update')->name('replies.update');
     Route::delete('/replies/{reply}', 'destroy')->name('replies.destroy');
+});
+
+Route::middleware('auth')->controller(NotificationController::class)->group(function () {
+    Route::get('/notifications', 'index')->name('notifications.index');
+    Route::post('/notifications/{id}/read', 'markRead')->name('notifications.read');
+    Route::post('/notifications/read-all', 'markAllRead')->name('notifications.read_all');
 });
