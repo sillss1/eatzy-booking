@@ -21,6 +21,13 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
         if (Auth::attempt($credentials)) {
+            // Check if user is blocked
+            if (Auth::user()->is_blocked) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Your account has been blocked.',
+                ]);
+            }
             $request->session()->regenerate();
             return redirect()->intended('/restaurants');
         }
@@ -28,6 +35,7 @@ class AuthController extends Controller
             'email' => 'Invalid credentials.',
         ]);
     }
+
 
     public function showRegisterForm()
     {

@@ -46,6 +46,42 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->group(function () {
     // Delete User Action
     Route::delete('/users/{id}', [App\Http\Controllers\AdminController::class, 'deleteUser'])
         ->name('admin.users.delete');
+    // Block/Unblock User Actions
+    Route::post('/users/{id}/block', [App\Http\Controllers\AdminController::class, 'blockUser'])
+        ->name('admin.users.block');
+    Route::post('/users/{id}/unblock', [App\Http\Controllers\AdminController::class, 'unblockUser'])
+        ->name('admin.users.unblock');
+    // Edit User
+    Route::get('/users/{id}/edit', [App\Http\Controllers\AdminController::class, 'editUser'])
+        ->name('admin.users.edit');
+    Route::put('/users/{id}', [App\Http\Controllers\AdminController::class, 'updateUser'])
+        ->name('admin.users.update');
+
+    // ===== RESOURCE MANAGEMENT =====
+    Route::get('/resources', [App\Http\Controllers\AdminController::class, 'listRestaurants'])
+        ->name('admin.resources');
+
+    // Restaurant Management
+    Route::get('/restaurants/create', [App\Http\Controllers\AdminController::class, 'createRestaurant'])
+        ->name('admin.restaurants.create');
+    Route::post('/restaurants', [App\Http\Controllers\AdminController::class, 'storeRestaurant'])
+        ->name('admin.restaurants.store');
+    Route::get('/restaurants/{id}/edit', [App\Http\Controllers\AdminController::class, 'editRestaurant'])
+        ->name('admin.restaurants.edit');
+    Route::put('/restaurants/{id}', [App\Http\Controllers\AdminController::class, 'updateRestaurant'])
+        ->name('admin.restaurants.update');
+    Route::delete('/restaurants/{id}', [App\Http\Controllers\AdminController::class, 'deleteRestaurant'])
+        ->name('admin.restaurants.delete');
+
+    // Review Management
+    Route::get('/reviews', [App\Http\Controllers\AdminController::class, 'listReviews'])
+        ->name('admin.reviews');
+    Route::get('/reviews/{id}/edit', [App\Http\Controllers\AdminController::class, 'editReview'])
+        ->name('admin.reviews.edit');
+    Route::put('/reviews/{id}', [App\Http\Controllers\AdminController::class, 'updateReview'])
+        ->name('admin.reviews.update');
+    Route::delete('/reviews/{id}', [App\Http\Controllers\AdminController::class, 'deleteReview'])
+        ->name('admin.reviews.delete');
 });
 
 // -------------------------------------
