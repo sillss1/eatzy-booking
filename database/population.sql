@@ -107,20 +107,44 @@ INSERT INTO "review" (user_id, restaurant_id, content, rating, created_at) VALUE
 INSERT INTO "reply" (user_id, review_id, content, created_at) VALUES 
 (3, 1, 'Thank you so much, Grace!', '2024-10-16');
 
--- 7. REPLIES
+-- 7. MORE REVIEWS AND REPLIES
 INSERT INTO "review" (user_id, restaurant_id, content, rating, created_at) VALUES 
 (8, 2, 'Great pizza.', 3, '2024-09-21');
 INSERT INTO "reply" (user_id, review_id, content, created_at) VALUES 
 (4, 2, 'Thank you for your feedback.', '2024-09-21');
 
+-- Review for The Cozy Corner (Eve's restaurant) - Grace reviewed it
+INSERT INTO "review" (user_id, restaurant_id, content, rating, created_at) VALUES 
+(7, 4, 'Lovely atmosphere and the brunch was delicious! Will definitely come back.', 4, '2024-12-20');
+
+-- Review from Kevin on The Cozy Corner
+INSERT INTO "review" (user_id, restaurant_id, content, rating, created_at) VALUES 
+(11, 4, 'Nice place for a quick coffee and snack. Good prices too!', 4, '2024-12-18');
+INSERT INTO "reply" (user_id, review_id, content, created_at) VALUES 
+(5, 4, 'Thank you Kevin! We appreciate your visit!', '2024-12-19');
+
 -- 8. FAVOURITES
 INSERT INTO favourite (user_id, restaurant_id) VALUES
-(7, 1), (7, 3), (8, 1), (9, 1), (10, 3);
+(7, 1), (7, 3), (7, 4), (8, 1), (9, 1), (10, 3), (11, 4);
 
--- 10. NOTIFICATIONS (Laravel standard format)
+-- 9. NOTIFICATIONS (Laravel standard format)
+-- Notifications for Grace (Customer - ID 7)
 INSERT INTO notifications (id, type, notifiable_type, notifiable_id, data, read_at, created_at) VALUES
-('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'App\Notifications\ReviewPosted', 'App\Models\User', 3, '{"title":"New Review Posted","message":"Grace has posted a review on your restaurant"}', '2024-10-16', '2024-10-16'),
-('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'App\Notifications\ReviewReplied', 'App\Models\User', 7, '{"title":"Reply to Your Review","message":"The owner replied to your review"}', '2024-10-16', '2024-10-16');
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'App\\Notifications\\ReviewReplied', 'App\\Models\\User', 7, '{"type":"review_replied","title":"Reply to Your Review","message":"Charles replied to your review on The Gourmet Place","url":"/restaurants/1","review_id":1,"restaurant_id":1}', '2024-10-16', '2024-10-16'),
+('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'App\\Notifications\\ReservationConfirmed', 'App\\Models\\User', 7, '{"type":"reservation_confirmed","title":"Reservation Confirmed","message":"Your reservation at The Gourmet Place has been confirmed","url":"/reservations","reservation_id":1,"restaurant_id":1}', '2024-10-15', '2024-10-15'),
+('c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', 'App\\Notifications\\ReservationConfirmed', 'App\\Models\\User', 7, '{"type":"reservation_confirmed","title":"Reservation Confirmed","message":"Your reservation at The Cozy Corner has been confirmed","url":"/reservations","reservation_id":17,"restaurant_id":4}', NULL, '2024-12-20'),
+('d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', 'App\\Notifications\\ReservationCancelled', 'App\\Models\\User', 7, '{"type":"reservation_cancelled","title":"Reservation Cancelled","message":"Your reservation at The Cozy Corner was cancelled","url":"/reservations","reservation_id":16,"restaurant_id":4}', NULL, '2024-12-19');
+
+-- Notifications for Eve (Owner - ID 5)
+INSERT INTO notifications (id, type, notifiable_type, notifiable_id, data, read_at, created_at) VALUES
+('e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a55', 'App\\Notifications\\ReviewPosted', 'App\\Models\\User', 5, '{"type":"review_posted","title":"New Review Posted","message":"Grace posted a review on The Cozy Corner","url":"/restaurants/4","review_id":3,"restaurant_id":4}', NULL, '2024-12-20'),
+('f5eebc99-9c0b-4ef8-bb6d-6bb9bd380a66', 'App\\Notifications\\ReviewPosted', 'App\\Models\\User', 5, '{"type":"review_posted","title":"New Review Posted","message":"Kevin posted a review on The Cozy Corner","url":"/restaurants/4","review_id":4,"restaurant_id":4}', '2024-12-18', '2024-12-18'),
+('a6eebc99-9c0b-4ef8-bb6d-6bb9bd380a77', 'App\\Notifications\\ReservationCreated', 'App\\Models\\User', 5, '{"type":"reservation_created","title":"New Reservation","message":"Kevin made a reservation at The Cozy Corner","url":"/reservations","reservation_id":11,"restaurant_id":4}', NULL, '2024-12-15'),
+('b7eebc99-9c0b-4ef8-bb6d-6bb9bd380a88', 'App\\Notifications\\ReservationCreated', 'App\\Models\\User', 5, '{"type":"reservation_created","title":"New Reservation","message":"Laura made a reservation at The Cozy Corner","url":"/reservations","reservation_id":14,"restaurant_id":4}', NULL, '2024-12-10');
+
+-- Notifications for Charles (Owner - ID 3)
+INSERT INTO notifications (id, type, notifiable_type, notifiable_id, data, read_at, created_at) VALUES
+('c8eebc99-9c0b-4ef8-bb6d-6bb9bd380a99', 'App\\Notifications\\ReviewPosted', 'App\\Models\\User', 3, '{"type":"review_posted","title":"New Review Posted","message":"Grace posted a review on The Gourmet Place","url":"/restaurants/1","review_id":1,"restaurant_id":1}', '2024-10-16', '2024-10-16');
 
 -- Activate the triggers again
 ALTER TABLE reservation ENABLE TRIGGER validate_opening_hours;
