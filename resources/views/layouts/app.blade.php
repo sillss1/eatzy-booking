@@ -20,17 +20,12 @@
         <header>
             <h1><a href="{{ route('restaurants.index') }}">EatZy Booking</a></h1>
 
-            <nav style="display: flex; gap: 1rem;">
-                @guest
-                    <div style="margin-right: auto;">
-                        <a class="button" href="{{ route('about') }}">About</a>
-                        <a class="button" href="{{ route('faq') }}">FAQ</a>
-                    </div>
-                    <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
-                    <a class="button" href="{{ route('login') }}">Login</a>
-                    <a class="button" href="{{ route('register') }}">Register</a>
-                @endguest
+            <nav style="display: flex; gap: 1rem; align-items: center;">
 
+                @guest
+                    <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
+                @endguest
+                
                 @auth
                     @php
                         $unreadNotifications = 0;
@@ -40,11 +35,6 @@
                             $unreadNotifications = 0;
                         }
                     @endphp
-
-                    <div style="margin-right: auto;">
-                        <a class="button" href="{{ route('about') }}">About</a>
-                        <a class="button" href="{{ route('faq') }}">FAQ</a>
-                    </div>
 
                     @if (!Auth::user()->isOwner())
                         <a class="button" href="{{ route('restaurants.index') }}">Restaurants</a>
@@ -59,18 +49,35 @@
                         <a class="button" href="{{ route('restaurants.index') }}">My Restaurants</a>
                         <a class="button" href="{{ route('reservations.index') }}">Reservations</a>
                     @endif
+                @endauth
 
-                    <a class="button" href="{{ route('notifications.index') }}">
-                        Notifications{{ $unreadNotifications > 0 ? " ($unreadNotifications)" : "" }}
-                    </a>
+                <div class="dropdown">
+                    <button class="button dropdown-toggle">Information</button>
+                    <div class="dropdown-menu">
+                        <a href="{{ route('about') }}">About</a>
+                        <a href="{{ route('faq') }}">FAQ</a>
+                    </div>
+                </div>
 
-                    <a class="button" href="{{ route('account.me') }}">{{ Auth::user()->name }}</a>
-                    <a class="button" href="{{ route('2fa.setup') }}">2FA Setup</a>
-                    <a class="button" href="{{ url('/logout') }}">Logout</a>
+                    
+                @guest
+                    <a class="button" href="{{ route('login') }}">Login</a>
+                    <a class="button" href="{{ route('register') }}">Register</a>
+                @endguest
+
+                @auth
+                    <div class="dropdown">
+                        <button class="button dropdown-toggle">Account</button>
+                        <div class="dropdown-menu">
+                            <a href="{{ route('account.me') }}">Profile</a>
+                            <a href="{{ route('notifications.index') }}">Notifications{{ $unreadNotifications > 0 ? " ($unreadNotifications)" : "" }}</a>
+                            <a href="{{ route('2fa.setup') }}">2FA Setup</a>
+                            <a href="{{ url('/logout') }}">Logout</a>
+                        </div>
+                    </div>
 
                     @if (Auth::user()->isAdmin())
-                        <a class="button" style="background-color: #333; border-color: #333;"
-                            href="{{ route('admin.dashboard') }}">
+                        <a class="button" style="background-color: #333; border-color: #333;" href="{{ route('admin.dashboard') }}">
                             Admin Panel
                         </a>
                     @endif
