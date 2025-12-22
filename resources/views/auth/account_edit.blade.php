@@ -55,12 +55,12 @@
             <input type="file" name="profile_picture" accept="image/*">
 
             <div>
-                <label>Name:</label>
+                <label>* Name:</label>
                 <input type="text" name="name" value="{{ old('name', $user->name) }}">
             </div>
 
             <div>
-                <label>Surname:</label>
+                <label>* Surname:</label>
                 <input type="text" name="surname" value="{{ old('surname', $user->surname) }}">
             </div>
 
@@ -86,7 +86,7 @@
 
             <div id="account-edit-fields" class="account-edit-fields">
                 <div>
-                    <label>Username:</label>
+                    <label>* Username:</label>
                     <input type="text" name="username" value="{{ old('username', $user->username) }}">
                     @error('username')
                         <div style="color:red;">{{ $message }}</div>
@@ -94,7 +94,7 @@
                 </div>
 
                 <div>
-                    <label>Email:</label>
+                    <label>* Email:</label>
                     <input type="email" name="email" value="{{ old('email', $user->email) }}">
                     @error('email')
                         <div style="color:red;">{{ $message }}</div>

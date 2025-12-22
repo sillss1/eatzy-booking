@@ -25,10 +25,10 @@
                     </div>
                 @endif
                 
-                <label>Title:</label>
+                <label>Title (optional):</label>
                 <input type="text" name="title" value="{{ old('title', $reservation->title) }}">
 
-                <label>Description:</label>
+                <label>Description (optional):</label>
                 <textarea name="description">{{ old('description', $reservation->description) }}</textarea>
 
                 <label>Number of people:</label>
