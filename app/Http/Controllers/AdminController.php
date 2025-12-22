@@ -73,7 +73,7 @@ class AdminController extends Controller
                 $user->reviews()->update(['user_id' => null]);
                 $user->replies()->update(['user_id' => null]);
                 $user->reservations()->update(['user_id' => null]);
-                $user->notifications()->update(['user_id' => null]);
+                // Laravel notifications deleted via CASCADE on user delete
 
                 $user->favouriteRestaurants()->detach();
 

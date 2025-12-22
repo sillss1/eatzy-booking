@@ -12,11 +12,7 @@ DROP TABLE IF EXISTS "restaurant" CASCADE;
 DROP TABLE IF EXISTS "restaurant_photo" CASCADE;
 DROP TABLE IF EXISTS "reservation" CASCADE;
 DROP TABLE IF EXISTS "notifications" CASCADE;
-DROP TABLE IF EXISTS "review_notifications" CASCADE;
-DROP TABLE IF EXISTS "reservation_notifications" CASCADE;
-
-DROP DOMAIN IF EXISTS types_of_reservation_notifications;
-DROP DOMAIN IF EXISTS types_of_review_notifications;
+DROP TABLE IF EXISTS "password_reset" CASCADE;
 
 DROP TRIGGER IF EXISTS restaurant_search_update ON restaurant CASCADE;
 DROP TRIGGER IF EXISTS user_archive_trigger ON "user" CASCADE;
@@ -46,6 +42,9 @@ DROP FUNCTION IF EXISTS update_edit_timestamps() CASCADE;
 DROP FUNCTION IF EXISTS cascade_restaurant_archive() CASCADE;
 DROP FUNCTION IF EXISTS can_reserve(INT, DATE, TIME) CASCADE;
 DROP FUNCTION IF EXISTS check_opening_hours() CASCADE;
+
+DROP DOMAIN IF EXISTS types_of_reservation_notifications;
+DROP DOMAIN IF EXISTS types_of_review_notifications;
 
 CREATE DOMAIN types_of_reservation_notifications AS TEXT
 CHECK(
@@ -152,24 +151,19 @@ CREATE TABLE "reservation" (
     deleted_at TIMESTAMP
 );
 
+-- Laravel standard notifications table
 CREATE TABLE "notifications" (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE NULL,
-    title TEXT NOT NULL,
-    date DATE NOT NULL DEFAULT CURRENT_DATE,
-    content TEXT,
-    viewed BOOLEAN NOT NULL DEFAULT false
+    id UUID PRIMARY KEY,
+    type VARCHAR(255) NOT NULL,
+    notifiable_type VARCHAR(255) NOT NULL,
+    notifiable_id BIGINT NOT NULL,
+    data TEXT NOT NULL,
+    read_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL
 );
 
-CREATE TABLE "review_notifications" (
-    notification_id INTEGER PRIMARY KEY REFERENCES "notifications"(id) ON DELETE CASCADE,
-    review_id INTEGER REFERENCES "review"(id) ON DELETE CASCADE
-);
-
-CREATE TABLE "reservation_notifications" (
-    notification_id INTEGER PRIMARY KEY REFERENCES "notifications"(id) ON DELETE CASCADE,
-    reservation_id INTEGER REFERENCES "reservation"(id) ON DELETE CASCADE
-);
+CREATE INDEX notifications_notifiable_idx ON "notifications" (notifiable_type, notifiable_id);
 
 CREATE TABLE "password_reset" (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -320,21 +314,34 @@ CREATE TRIGGER cascade_review_deletion_trigger
 CREATE OR REPLACE FUNCTION notify_new_reservation()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO notifications (user_id, title, content)
+    -- Insert notification for restaurant owner (Laravel format)
+    INSERT INTO notifications (id, type, notifiable_type, notifiable_id, data, created_at)
     SELECT 
+        gen_random_uuid(),
+        'App\Notifications\NewReservation',
+        'App\Models\User',
         r.owner_id,
-        'New Reservation Request',
-        'New reservation request for ' || NEW.number_of_people || ' people on ' || 
-        NEW.date_of_visit || ' at ' || NEW.time_of_visit
+        json_build_object(
+            'title', 'New Reservation Request',
+            'message', 'New reservation request for ' || NEW.number_of_people || ' people on ' || 
+                       NEW.date_of_visit || ' at ' || NEW.time_of_visit
+        )::text,
+        CURRENT_TIMESTAMP
     FROM restaurant r
-    WHERE r.id = NEW.restaurant_id;
+    WHERE r.id = NEW.restaurant_id AND r.owner_id IS NOT NULL;
 
-    INSERT INTO notifications (user_id, title, content)
-    VALUES (
-        NEW.user_id,
-        'Reservation Request Sent',
-        'Your reservation request has been sent to the restaurant'
-    );
+    -- Insert notification for user (Laravel format)
+    IF NEW.user_id IS NOT NULL THEN
+        INSERT INTO notifications (id, type, notifiable_type, notifiable_id, data, created_at)
+        VALUES (
+            gen_random_uuid(),
+            'App\Notifications\ReservationSent',
+            'App\Models\User',
+            NEW.user_id,
+            '{"title":"Reservation Request Sent","message":"Your reservation request has been sent to the restaurant"}',
+            CURRENT_TIMESTAMP
+        );
+    END IF;
 
     RETURN NEW;
 END;
@@ -353,6 +360,22 @@ BEGIN
     END IF;
 
     IF TG_OP = 'UPDATE' AND NEW.deleted_at IS DISTINCT FROM OLD.deleted_at THEN
+        RETURN NEW;
+    END IF;
+
+    -- Allow auto-complete trigger to update is_completed
+    IF TG_OP = 'UPDATE' AND NEW.is_completed IS DISTINCT FROM OLD.is_completed 
+       AND NEW.date_of_visit = OLD.date_of_visit 
+       AND NEW.time_of_visit = OLD.time_of_visit
+       AND NEW.number_of_people = OLD.number_of_people THEN
+        RETURN NEW;
+    END IF;
+
+    -- Allow is_confirmed changes (for owner confirmation)
+    IF TG_OP = 'UPDATE' AND NEW.is_confirmed IS DISTINCT FROM OLD.is_confirmed 
+       AND NEW.date_of_visit = OLD.date_of_visit 
+       AND NEW.time_of_visit = OLD.time_of_visit
+       AND NEW.number_of_people = OLD.number_of_people THEN
         RETURN NEW;
     END IF;
 

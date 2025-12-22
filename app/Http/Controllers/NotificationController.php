@@ -17,11 +17,14 @@ class NotificationController extends Controller
     public function markRead($id)
     {
         $user = Auth::user();
-        $n = $user->notifications()->where('id', $id)->firstOrFail();
-        $n->markAsRead();
+        $notification = $user->notifications()->where('id', $id)->firstOrFail();
+        $notification->markAsRead();
 
-        $url = $n->data['url'] ?? null;
-        if ($url) return redirect($url);
+        // Redirect to URL in data if exists
+        $url = $notification->data['url'] ?? null;
+        if ($url) {
+            return redirect($url);
+        }
 
         return back();
     }
