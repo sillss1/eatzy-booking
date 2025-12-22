@@ -54,8 +54,8 @@
                 <div class="dropdown">
                     <button class="button dropdown-toggle">Information</button>
                     <div class="dropdown-menu">
-                        <a href="{{ route('about') }}">About</a>
-                        <a href="{{ route('faq') }}">FAQ</a>
+                        <a href="{{ route('about') }}">ℹ️ About</a>
+                        <a href="{{ route('faq') }}">❓ FAQ</a>
                     </div>
                 </div>
 
@@ -69,10 +69,10 @@
                     <div class="dropdown">
                         <button class="button dropdown-toggle">Account</button>
                         <div class="dropdown-menu">
-                            <a href="{{ route('account.me') }}">Profile</a>
-                            <a href="{{ route('notifications.index') }}">Notifications{{ $unreadNotifications > 0 ? " ($unreadNotifications)" : "" }}</a>
-                            <a href="{{ route('2fa.setup') }}">2FA Setup</a>
-                            <a href="{{ url('/logout') }}">Logout</a>
+                            <a href="{{ route('account.me') }}">👤 Profile</a>
+                            <a href="{{ route('notifications.index') }}">🔔 Notifications</a>
+                            <a href="{{ route('2fa.setup') }}">🔐 2FA Setup</a>
+                            <a href="{{ url('/logout') }}">⏻ Logout</a>
                         </div>
                     </div>
 
