@@ -7,7 +7,9 @@
 
     <form method="POST" action="{{ route('notifications.read_all') }}" style="margin-bottom: 1rem;">
         @csrf
-        <button class="button button-outline" type="submit">Mark all as read</button>
+        <button class="button button-outline mark-read" type="submit">
+            Mark all as read
+        </button>
     </form>
 
     @forelse ($notifications as $n)
@@ -19,9 +21,13 @@
 
             @if (!$n->read_at)
                 <div class="actions" style="margin-top: 0.75rem;">
-                    <form method="POST" action="{{ route('notifications.read', $n->id) }}" style="display:inline;">
+                    <form method="POST"
+                          action="{{ route('notifications.read', $n->id) }}"
+                          style="display:inline;">
                         @csrf
-                        <button class="button button-outline" type="submit">Mark as read</button>
+                        <button class="button button-outline mark-read" type="submit">
+                            Mark as read
+                        </button>
                     </form>
                 </div>
             @endif

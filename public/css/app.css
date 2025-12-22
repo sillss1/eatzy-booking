@@ -926,3 +926,9 @@ footer a:hover {
 .dropdown:hover .dropdown-menu {
     display: block;
 }
+/* Notifications – Mark as read buttons */
+button.mark-read,
+button.mark-read:hover,
+button.mark-read:active {
+  color: #ffffff !important;
+}
