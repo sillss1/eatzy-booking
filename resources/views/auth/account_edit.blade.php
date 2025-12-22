@@ -49,7 +49,7 @@
             @endif
         </div>
 
-        <form action="{{ route('account.update') }}" method="POST" enctype="multipart/form-data">
+        <form id="profile-form" action="{{ route('account.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <input type="file" name="profile_picture" accept="image/*">
@@ -120,17 +120,6 @@
 
     </div>
 
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const toggleBtn = document.getElementById('toggle-account-edit');
-            const editFields = document.getElementById('account-edit-fields');
-
-            toggleBtn.addEventListener('click', () => {
-                editFields.classList.toggle('show');
-            });
-        });
-    </script>
-
-
 @endsection
+
+<script src="{{ asset('js/profile-edit.js') }}"></script>
