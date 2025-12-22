@@ -7,7 +7,9 @@
         <h1>Manage Resources</h1>
 
         @if(session('success'))
-            <div style="color: green; margin-bottom: 15px;">{{ session('success') }}</div>
+            <div style="color: green; margin-bottom: 15px;">
+                {{ session('success') }}
+            </div>
         @endif
 
         @if($errors->any())
@@ -18,19 +20,24 @@
             </div>
         @endif
 
-        <!-- Tab Navigation -->
-        <div style="margin-bottom: 20px;">
+        <!-- Tabs -->
+        <div style="margin-bottom: 25px; display: flex; gap: 10px;">
             <a href="{{ route('admin.resources') }}"
-                class="button {{ $tab == 'restaurants' ? '' : 'button-outline' }}">Restaurants</a>
+               class="button {{ $tab == 'restaurants' ? 'active-tab' : '' }}">
+                Restaurants
+            </a>
+
             <a href="{{ route('admin.reviews') }}"
-                class="button {{ $tab == 'reviews' ? '' : 'button-outline' }}">Reviews</a>
+               class="button {{ $tab == 'reviews' ? 'active-tab' : '' }}">
+                Reviews
+            </a>
         </div>
 
         @if($tab == 'restaurants')
-            <!-- Restaurants Section -->
             <div style="margin-bottom: 20px;">
-                <a href="{{ route('admin.restaurants.create') }}" class="button"
-                    style="background-color: green; border-color: green;">+ Create Restaurant</a>
+                <a href="{{ route('admin.restaurants.create') }}" class="button">
+                    + Create Restaurant
+                </a>
             </div>
 
             <table>
@@ -53,21 +60,27 @@
                             <td>{{ $restaurant->capacity }}</td>
                             <td>
                                 @if($restaurant->closed_at)
-                                    <span style="color: red;">Closed</span>
+                                    <span style="color:red;">Closed</span>
                                 @else
-                                    <span style="color: green;">Active</span>
+                                    <span style="color:green;">Active</span>
                                 @endif
                             </td>
-                            <td style="display: flex; gap: 5px;">
+                            <td class="admin-actions">
                                 <a href="{{ route('admin.restaurants.edit', $restaurant->id) }}"
-                                    class="button button-small button-outline">Edit</a>
+                                   class="button edit">
+                                    Edit
+                                </a>
+
                                 @if(!$restaurant->closed_at)
-                                    <form action="{{ route('admin.restaurants.delete', $restaurant->id) }}" method="POST"
-                                        onsubmit="return confirm('Remove this restaurant from platform?');" style="margin:0;">
+                                    <form action="{{ route('admin.restaurants.delete', $restaurant->id) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Remove this restaurant from platform?');"
+                                          style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="button button-small button-outline"
-                                            style="border-color: red; color: red;">Delete</button>
+                                        <button type="submit" class="button delete">
+                                            Delete
+                                        </button>
                                     </form>
                                 @endif
                             </td>
@@ -84,7 +97,6 @@
         @endif
 
         @if($tab == 'reviews')
-            <!-- Reviews Section -->
             <table>
                 <thead>
                     <tr>
@@ -104,15 +116,21 @@
                             <td>{{ $review->restaurant ? $review->restaurant->name : '[Deleted Restaurant]' }}</td>
                             <td>{{ $review->rating }} ⭐</td>
                             <td>{{ Str::limit($review->content, 50) }}</td>
-                            <td style="display: flex; gap: 5px;">
+                            <td class="admin-actions">
                                 <a href="{{ route('admin.reviews.edit', $review->id) }}"
-                                    class="button button-small button-outline">Edit</a>
-                                <form action="{{ route('admin.reviews.delete', $review->id) }}" method="POST"
-                                    onsubmit="return confirm('Delete this review permanently?');" style="margin:0;">
+                                   class="button edit">
+                                    Edit
+                                </a>
+
+                                <form action="{{ route('admin.reviews.delete', $review->id) }}"
+                                      method="POST"
+                                      onsubmit="return confirm('Delete this review permanently?');"
+                                      style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="button button-small button-outline"
-                                        style="border-color: red; color: red;">Delete</button>
+                                    <button type="submit" class="button delete">
+                                        Delete
+                                    </button>
                                 </form>
                             </td>
                         </tr>
