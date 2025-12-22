@@ -22,19 +22,27 @@ class RestaurantController extends Controller
         // Full-text and exact match search
 
         $search = trim($request->get('search'));
+
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->whereRaw("tsvectors @@ plainto_tsquery('english', ?)", [$search])
-                    ->orWhere(function ($q2) use ($search) {
-                        $q2->where('name', 'ILIKE', "%{$search}%")
-                            ->orWhere('description', 'ILIKE', "%{$search}%")
-                            ->orWhere('address', 'ILIKE', "%{$search}%");
-                    });
+            $searchTerms = preg_split('/\s+/', $search);
+
+            $tsQuery = implode(' | ', $searchTerms);
+
+            $query->where(function ($q) use ($searchTerms, $tsQuery) {
+                $q->whereRaw("tsvectors @@ to_tsquery('english', ?)", [$tsQuery])
+                ->orWhere(function ($q2) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        $q2->orWhere('name', 'ILIKE', "%{$term}%")
+                            ->orWhere('description', 'ILIKE', "%{$term}%")
+                            ->orWhere('address', 'ILIKE', "%{$term}%");
+                    }
+                });
             })
-                ->orderByRaw("name = ? DESC", [$search])
-                ->orderByRaw("address = ? DESC", [$search])
-                ->orderByRaw("ts_rank(tsvectors, plainto_tsquery('english', ?)) DESC", [$search]);
+            ->orderByRaw("ts_rank(tsvectors, to_tsquery('english', ?)) DESC", [$tsQuery])
+            ->orderByRaw("name = ? DESC", [$search])
+            ->orderByRaw("address = ? DESC", [$search]);
         }
+
         $direction = $request->get('direction', 'asc');
 
         // Favourite filtering
