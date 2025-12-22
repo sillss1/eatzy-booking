@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Reply;
 use App\Models\Review;
+use App\Models\User;
+use App\Notifications\ReviewReplied;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,6 +27,18 @@ class ReplyController extends Controller
             'content' => $validated['comment'],
             'created_at' => now(),
         ]);
+
+        // Notify the review author
+        $reviewAuthor = User::find($review->user_id);
+        if ($reviewAuthor && $reviewAuthor->id !== $user->id) {
+            $reviewAuthor->notify(new ReviewReplied([
+                'title' => 'Reply to your review',
+                'message' => $user->name . ' replied to your review on ' . $review->restaurant->name,
+                'url' => route('restaurants.show', $review->restaurant_id),
+                'review_id' => $review->id,
+                'restaurant_id' => $review->restaurant_id,
+            ]));
+        }
 
         return back()->with('success', 'Reply posted successfully.');
     }

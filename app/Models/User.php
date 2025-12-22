@@ -44,6 +44,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Reservation::class, 'user_id');
     }
+
     public function updateProfile(array $data, ?\Illuminate\Http\UploadedFile $picture = null, bool $removePicture = false)
     {
         if ($removePicture && $this->profile_picture) {
@@ -76,7 +77,7 @@ class User extends Authenticatable
             $this->reviews()->update(['user_id' => null]);
             $this->replies()->update(['user_id' => null]);
             $this->reservations()->update(['user_id' => null]);
-            $this->notifications()->update(['user_id' => null]);
+            // Laravel notifications are automatically deleted via CASCADE on notifiable_id
 
             $this->favouriteRestaurants()->detach();
 

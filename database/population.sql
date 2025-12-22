@@ -1,13 +1,8 @@
 SET search_path TO lbaw25145;
 
-TRUNCATE TABLE
-    "user", "administrator", "customer", "owner", "restaurant",
-    "favourite", "review", "reply", "restaurant_photo", "reservation",
-    "notifications", "review_notifications",
-    "reservation_notifications"
-RESTART IDENTITY CASCADE;
+-- Note: TRUNCATE removed since creation.sql already drops/recreates all tables
 
--- Desactivate triggers for the time of population
+-- Deactivate triggers for the time of population
 ALTER TABLE reservation DISABLE TRIGGER validate_opening_hours;
 ALTER TABLE reservation DISABLE TRIGGER validate_reservation_changes;
 
@@ -122,10 +117,10 @@ INSERT INTO "reply" (user_id, review_id, content, created_at) VALUES
 INSERT INTO favourite (user_id, restaurant_id) VALUES
 (7, 1), (7, 3), (8, 1), (9, 1), (10, 3);
 
--- 10. NOTIFICATIONS
-INSERT INTO notifications (user_id, title, content, date, viewed) VALUES
-(3, 'New Review Posted', 'Grace has posted a review', '2024-10-16', true),
-(7, 'Reply to Your Review', 'Owner replied', '2024-10-16', true);
+-- 10. NOTIFICATIONS (Laravel standard format)
+INSERT INTO notifications (id, type, notifiable_type, notifiable_id, data, read_at, created_at) VALUES
+('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'App\Notifications\ReviewPosted', 'App\Models\User', 3, '{"title":"New Review Posted","message":"Grace has posted a review on your restaurant"}', '2024-10-16', '2024-10-16'),
+('b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', 'App\Notifications\ReviewReplied', 'App\Models\User', 7, '{"title":"Reply to Your Review","message":"The owner replied to your review"}', '2024-10-16', '2024-10-16');
 
 -- Activate the triggers again
 ALTER TABLE reservation ENABLE TRIGGER validate_opening_hours;

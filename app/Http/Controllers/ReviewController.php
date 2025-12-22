@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Restaurant;
 use App\Models\Review;
+use App\Models\User;
+use App\Notifications\ReviewPosted;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,12 +25,24 @@ class ReviewController extends Controller
         ]);
 
         try {
-            Review::create([
+            $review = Review::create([
                 'user_id' => $user->id,
                 'restaurant_id' => $restaurant->id,
                 'rating' => $validated['rating'],
                 'content' => $validated['comment'],
             ]);
+
+            // Notify the restaurant owner
+            $owner = User::find($restaurant->owner_id);
+            if ($owner) {
+                $owner->notify(new ReviewPosted([
+                    'title' => 'New review posted',
+                    'message' => $user->name . ' posted a review on ' . $restaurant->name,
+                    'url' => route('restaurants.show', $restaurant->id),
+                    'review_id' => $review->id,
+                    'restaurant_id' => $restaurant->id,
+                ]));
+            }
         } catch (QueryException $e) {
             $msg = $e->getMessage() ?? '';
 
