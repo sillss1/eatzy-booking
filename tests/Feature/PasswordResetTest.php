@@ -55,7 +55,8 @@ class PasswordResetTest extends TestCase
         ]);
 
         $response->assertStatus(302);
-        $response->assertSessionHas('status', trans('passwords.reset')); // "Your password has been reset."
+        $response->assertRedirect('/login');
+        $response->assertSessionHas('status', 'Your password has been reset! Please log in with your new password.');
 
         $this->assertTrue(Hash::check('new-password', $user->fresh()->password));
     }

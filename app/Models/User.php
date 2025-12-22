@@ -169,7 +169,7 @@ class User extends Authenticatable
     // Override standard reset notification to use our custom MailModel
     public function sendPasswordResetNotification($token)
     {
-        $resetUrl = url(route('password.reset', ['token' => $token], false));
+        $resetUrl = url(route('password.reset', ['token' => $token, 'email' => $this->email], false));
 
         $mailData = [
             'subject' => 'Reset Your Password - EatZy',

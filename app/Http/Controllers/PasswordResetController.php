@@ -44,7 +44,7 @@ class PasswordResetController extends Controller
         );
     }
 
-    // Override to skip remember_token (our table doesn't have it)
+    // Override to skip remember_token and auto-login (redirect to login instead)
     protected function resetPassword($user, $password)
     {
         $this->setUserPassword($user, $password);
@@ -55,6 +55,12 @@ class PasswordResetController extends Controller
 
         event(new \Illuminate\Auth\Events\PasswordReset($user));
 
-        $this->guard()->login($user);
+        // Don't auto-login - redirect to login page with success message
+    }
+
+    // Override sendResetResponse to redirect to login with message
+    protected function sendResetResponse(Request $request, $response)
+    {
+        return redirect('/login')->with('status', 'Your password has been reset! Please log in with your new password.');
     }
 }
