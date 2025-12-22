@@ -13,6 +13,7 @@
         <select id="sort">
             <option value="name">Name</option>
             <option value="address">Address</option>
+            <option value="description">Description</option>
             
             @auth
                 @if(Auth::user()->isAdmin())

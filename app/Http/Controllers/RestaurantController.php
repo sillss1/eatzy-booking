@@ -62,6 +62,10 @@ class RestaurantController extends Controller
                 $query->orderBy('address', $direction);
             }
 
+            if ($request->sort === 'description') {
+                $query->orderBy('description', $direction);
+            }
+
             if ($request->sort === 'capacity') {
                 $query->orderBy('capacity', $direction);
             }

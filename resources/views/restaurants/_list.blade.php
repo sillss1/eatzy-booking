@@ -26,7 +26,7 @@
 
                 <h3>
                     <a href="{{ route('restaurants.show', $restaurant->id) }}" style="color: inherit; text-decoration: none;">
-                        {{ $restaurant->name }}
+                        <strong>{{ $restaurant->name }}</strong>
                     </a>
                 </h3>
 
