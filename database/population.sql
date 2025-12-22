@@ -1,18 +1,17 @@
 SET search_path TO lbaw25145;
 
--- Limpar tudo antes de popular
 TRUNCATE TABLE
     "user", "administrator", "customer", "owner", "restaurant",
     "favourite", "review", "reply", "restaurant_photo", "reservation",
-    "waitlist", "offer", "notification", "review_notification",
-    "reservation_notification", "offer_notification"
+    "notifications", "review_notifications",
+    "reservation_notifications"
 RESTART IDENTITY CASCADE;
 
--- Desativar triggers para permitir inserção massiva sem validações chatas
+-- Desactivate triggers for the time of population
 ALTER TABLE reservation DISABLE TRIGGER validate_opening_hours;
 ALTER TABLE reservation DISABLE TRIGGER validate_reservation_changes;
 
--- 1. USERS (Password: '12345678' hashada)
+-- 1. USERS (Passwords: userpass/ownerpass/adminpass hashada)
 INSERT INTO "user" (username, email, name, surname, password, profile_description)
 VALUES
     ('root_admin', 'admin@eatz.com', 'Alice', 'Root', '$2y$12$QapHwKREapAyRHXJAIOu..hokWEyvF9KF2xSnjeMymCHn5Z85gPU2', 'Lead platform administrator.'),
@@ -107,37 +106,27 @@ INSERT INTO reservation (user_id, restaurant_id, number_of_people, date_of_visit
 (7, 4, 2, '2025-12-13', '12:30:00', true, false, 'Lunch with Vernon Roche', 'We love to come to your place!', '2025-11-05 23:32:00'),
 (7, 4, 4, '2025-12-25', '13:00:00', false, false, 'Lone fine dining experience', NULL, '2025-12-10 14:11:00');
 
--- 6. REVIEWS & REPLIES
--- 6. REVIEWS & REPLIES (Commented out for A8 Prototype)
-/*
+-- 6. REVIEWS
 INSERT INTO "review" (user_id, restaurant_id, content, rating, created_at) VALUES 
 (7, 1, 'Absolutely fantastic!', 5, '2024-10-16');
 INSERT INTO "reply" (user_id, review_id, content, created_at) VALUES 
 (3, 1, 'Thank you so much, Grace!', '2024-10-16');
 
+-- 7. REPLIES
 INSERT INTO "review" (user_id, restaurant_id, content, rating, created_at) VALUES 
 (8, 2, 'Great pizza.', 3, '2024-09-21');
 INSERT INTO "reply" (user_id, review_id, content, created_at) VALUES 
 (4, 2, 'Thank you for your feedback.', '2024-09-21');
-*/
-
--- 7. OFFERS
-INSERT INTO offer (restaurant_id, title, content, start_date, end_date) VALUES
-(2, '2-for-1 Pizzas', 'Buy one get one free', CURRENT_DATE - INTERVAL '1 day', CURRENT_DATE + INTERVAL '30 days'),
-(5, 'Sushi Happy Hour', '30% off', CURRENT_DATE, CURRENT_DATE + INTERVAL '60 days');
 
 -- 8. FAVOURITES
 INSERT INTO favourite (user_id, restaurant_id) VALUES
 (7, 1), (7, 3), (8, 1), (9, 1), (10, 3);
 
--- 9. WAITLIST
--- (Nenhum exemplo ativo para evitar erros de referência se a reserva não existir)
-
 -- 10. NOTIFICATIONS
-INSERT INTO notification (user_id, title, content, date, viewed) VALUES
+INSERT INTO notifications (user_id, title, content, date, viewed) VALUES
 (3, 'New Review Posted', 'Grace has posted a review', '2024-10-16', true),
 (7, 'Reply to Your Review', 'Owner replied', '2024-10-16', true);
 
--- Reativar triggers
+-- Activate the triggers again
 ALTER TABLE reservation ENABLE TRIGGER validate_opening_hours;
 ALTER TABLE reservation ENABLE TRIGGER validate_reservation_changes;

@@ -6,21 +6,17 @@ DROP TABLE IF EXISTS "administrator" CASCADE;
 DROP TABLE IF EXISTS "customer" CASCADE;
 DROP TABLE IF EXISTS "owner" CASCADE;
 DROP TABLE IF EXISTS "favourite" CASCADE;
-DROP TABLE IF EXISTS "waitlist" CASCADE;
 DROP TABLE IF EXISTS "review" CASCADE;
 DROP TABLE IF EXISTS "reply" CASCADE;
 DROP TABLE IF EXISTS "restaurant" CASCADE;
 DROP TABLE IF EXISTS "restaurant_photo" CASCADE;
 DROP TABLE IF EXISTS "reservation" CASCADE;
-DROP TABLE IF EXISTS "offer" CASCADE;
-DROP TABLE IF EXISTS "notification" CASCADE;
-DROP TABLE IF EXISTS "review_notification" CASCADE;
-DROP TABLE IF EXISTS "reservation_notification" CASCADE;
-DROP TABLE IF EXISTS "offer_notification" CASCADE;
+DROP TABLE IF EXISTS "notifications" CASCADE;
+DROP TABLE IF EXISTS "review_notifications" CASCADE;
+DROP TABLE IF EXISTS "reservation_notifications" CASCADE;
 
-DROP DOMAIN IF EXISTS types_of_reservation_notification;
-DROP DOMAIN IF EXISTS types_of_review_notification;
-DROP DOMAIN IF EXISTS types_of_offer_notification;
+DROP DOMAIN IF EXISTS types_of_reservation_notifications;
+DROP DOMAIN IF EXISTS types_of_review_notifications;
 
 DROP TRIGGER IF EXISTS restaurant_search_update ON restaurant CASCADE;
 DROP TRIGGER IF EXISTS user_archive_trigger ON "user" CASCADE;
@@ -51,19 +47,14 @@ DROP FUNCTION IF EXISTS cascade_restaurant_archive() CASCADE;
 DROP FUNCTION IF EXISTS can_reserve(INT, DATE, TIME) CASCADE;
 DROP FUNCTION IF EXISTS check_opening_hours() CASCADE;
 
-CREATE DOMAIN types_of_reservation_notification AS TEXT
+CREATE DOMAIN types_of_reservation_notifications AS TEXT
 CHECK(
     VALUE IN ('new_reservation', 'reservation_cancelled', 'reservation_modified', 'reservation_reminder')
 );
 
-CREATE DOMAIN types_of_review_notification AS TEXT
+CREATE DOMAIN types_of_review_notifications AS TEXT
 CHECK(
     VALUE IN ('review_posted', 'review_replied_to')
-);
-
-CREATE DOMAIN types_of_offer_notification AS TEXT
-CHECK(
-    VALUE IN ('general_offer', 'personalized_offer')
 );
 
 CREATE TABLE "user" (
@@ -161,23 +152,7 @@ CREATE TABLE "reservation" (
     deleted_at TIMESTAMP
 );
 
-CREATE TABLE "waitlist" (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE NULL,
-    reservation_id INTEGER REFERENCES "reservation"(id) ON DELETE CASCADE,
-    position INTEGER NOT NULL CHECK (position > 0)
-);
-
-CREATE TABLE "offer" (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    restaurant_id INTEGER REFERENCES "restaurant"(id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    content TEXT,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL CHECK (end_date >= start_date)
-);
-
-CREATE TABLE "notification" (
+CREATE TABLE "notifications" (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     user_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE NULL,
     title TEXT NOT NULL,
@@ -186,19 +161,14 @@ CREATE TABLE "notification" (
     viewed BOOLEAN NOT NULL DEFAULT false
 );
 
-CREATE TABLE "review_notification" (
-    notification_id INTEGER PRIMARY KEY REFERENCES "notification"(id) ON DELETE CASCADE,
+CREATE TABLE "review_notifications" (
+    notification_id INTEGER PRIMARY KEY REFERENCES "notifications"(id) ON DELETE CASCADE,
     review_id INTEGER REFERENCES "review"(id) ON DELETE CASCADE
 );
 
-CREATE TABLE "reservation_notification" (
-    notification_id INTEGER PRIMARY KEY REFERENCES "notification"(id) ON DELETE CASCADE,
+CREATE TABLE "reservation_notifications" (
+    notification_id INTEGER PRIMARY KEY REFERENCES "notifications"(id) ON DELETE CASCADE,
     reservation_id INTEGER REFERENCES "reservation"(id) ON DELETE CASCADE
-);
-
-CREATE TABLE "offer_notification" (
-    notification_id INTEGER PRIMARY KEY REFERENCES "notification"(id) ON DELETE CASCADE,
-    offer_id INTEGER REFERENCES "offer"(id) ON DELETE CASCADE
 );
 
 CREATE TABLE "password_reset" (
@@ -350,7 +320,7 @@ CREATE TRIGGER cascade_review_deletion_trigger
 CREATE OR REPLACE FUNCTION notify_new_reservation()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO notification (user_id, title, content)
+    INSERT INTO notifications (user_id, title, content)
     SELECT 
         r.owner_id,
         'New Reservation Request',
@@ -359,7 +329,7 @@ BEGIN
     FROM restaurant r
     WHERE r.id = NEW.restaurant_id;
 
-    INSERT INTO notification (user_id, title, content)
+    INSERT INTO notifications (user_id, title, content)
     VALUES (
         NEW.user_id,
         'Reservation Request Sent',
@@ -452,10 +422,6 @@ BEGIN
           AND date_of_visit >= CURRENT_DATE
           AND deleted_at IS NULL;
        
-        UPDATE offer 
-        SET end_date = CURRENT_DATE
-        WHERE restaurant_id = NEW.id 
-          AND end_date > CURRENT_DATE;
     END IF;
     RETURN NEW;
 END;
