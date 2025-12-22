@@ -11,21 +11,18 @@ class ReplyController extends Controller
 {
     public function store(Request $request, $reviewId)
     {
-        $user = Auth::user();
-        if (!$user || !$user->isOwner()) abort(403);
-
         $review = Review::with('restaurant')->findOrFail($reviewId);
-
-        if ($review->restaurant->owner_id !== $user->id) abort(403);
+        $this->authorize('create', [Reply::class, $review]);
+        $user = Auth::user();
 
         $validated = $request->validate([
             'comment' => 'required|string|max:2000',
         ]);
 
         Reply::create([
-            'review_id'  => $review->id,
-            'user_id'    => $user->id,
-            'content'    => $validated['comment'],
+            'review_id' => $review->id,
+            'user_id' => $user->id,
+            'content' => $validated['comment'],
             'created_at' => now(),
         ]);
 
@@ -35,9 +32,7 @@ class ReplyController extends Controller
     public function edit($id)
     {
         $reply = Reply::with('review.restaurant')->findOrFail($id);
-        $user  = Auth::user();
-
-        if (!$user || $user->id !== $reply->user_id) abort(403);
+        $this->authorize('update', $reply);
 
         return view('replies.edit', compact('reply'));
     }
@@ -45,16 +40,14 @@ class ReplyController extends Controller
     public function update(Request $request, $id)
     {
         $reply = Reply::with('review.restaurant')->findOrFail($id);
-        $user  = Auth::user();
-
-        if (!$user || $user->id !== $reply->user_id) abort(403);
+        $this->authorize('update', $reply);
 
         $validated = $request->validate([
             'comment' => 'required|string|max:2000',
         ]);
 
         $reply->update([
-            'content'   => $validated['comment'],
+            'content' => $validated['comment'],
             'edited_at' => now(),
         ]);
 
@@ -66,9 +59,7 @@ class ReplyController extends Controller
     public function destroy($id)
     {
         $reply = Reply::with('review.restaurant')->findOrFail($id);
-        $user  = Auth::user();
-
-        if (!$user || $user->id !== $reply->user_id) abort(403);
+        $this->authorize('delete', $reply);
 
         $reply->delete();
 

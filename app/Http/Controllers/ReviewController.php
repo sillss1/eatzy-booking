@@ -12,22 +12,22 @@ class ReviewController extends Controller
 {
     public function store(Request $request, $restaurantId)
     {
+        $this->authorize('create', Review::class);
         $user = Auth::user();
-        if (!$user || !$user->isCustomer()) abort(403);
 
         $restaurant = Restaurant::active()->findOrFail($restaurantId);
 
         $validated = $request->validate([
-            'rating'  => 'required|integer|min:1|max:5',
+            'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string|max:2000',
         ]);
 
         try {
             Review::create([
-                'user_id'       => $user->id,
+                'user_id' => $user->id,
                 'restaurant_id' => $restaurant->id,
-                'rating'        => $validated['rating'],
-                'content'       => $validated['comment'],
+                'rating' => $validated['rating'],
+                'content' => $validated['comment'],
             ]);
         } catch (QueryException $e) {
             $msg = $e->getMessage() ?? '';
@@ -49,7 +49,7 @@ class ReviewController extends Controller
     public function edit($id)
     {
         $review = Review::findOrFail($id);
-        if (Auth::id() !== $review->user_id) abort(403);
+        $this->authorize('update', $review);
 
         return view('reviews.edit', compact('review'));
     }
@@ -57,15 +57,15 @@ class ReviewController extends Controller
     public function update(Request $request, $id)
     {
         $review = Review::findOrFail($id);
-        if (Auth::id() !== $review->user_id) abort(403);
+        $this->authorize('update', $review);
 
         $validated = $request->validate([
-            'rating'  => 'required|integer|min:1|max:5',
+            'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string|max:2000',
         ]);
 
         $review->update([
-            'rating'  => $validated['rating'],
+            'rating' => $validated['rating'],
             'content' => $validated['comment'],
             'edited_at' => now(),
         ]);
@@ -78,7 +78,7 @@ class ReviewController extends Controller
     public function destroy($id)
     {
         $review = Review::findOrFail($id);
-        if (Auth::id() !== $review->user_id) abort(403);
+        $this->authorize('delete', $review);
 
         // podes fazer soft delete (meter deleted_at) ou delete direto:
         $review->delete();

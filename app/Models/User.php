@@ -51,7 +51,8 @@ class User extends Authenticatable
             $this->profile_picture = null;
         }
 
-        if (isset($data['username'])) $this->username = $data['username'];
+        if (isset($data['username']))
+            $this->username = $data['username'];
         if (isset($data['email']) && $data['email'] !== $this->email) {
             $this->email = $data['email'];
         }
@@ -93,6 +94,49 @@ class User extends Authenticatable
         $this->save();
     }
 
+    // Create user with role (used by admin)
+    public static function createWithRole(array $data): User
+    {
+        $user = self::create([
+            'name' => $data['name'],
+            'surname' => $data['surname'],
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => \Hash::make($data['password']),
+        ]);
+
+        // Assign role
+        if ($data['role'] === 'admin') {
+            \DB::table('administrator')->insert(['id' => $user->id]);
+        } elseif ($data['role'] === 'owner') {
+            \DB::table('owner')->insert(['id' => $user->id]);
+        } else {
+            \DB::table('customer')->insert(['id' => $user->id]);
+        }
+
+        return $user;
+    }
+
+    // Two-Factor Authentication methods
+    public function enable2FA(string $secret): void
+    {
+        $this->two_factor_secret = $secret;
+        $this->two_factor_enabled = true;
+        $this->save();
+    }
+
+    public function disable2FA(): void
+    {
+        $this->two_factor_secret = null;
+        $this->two_factor_enabled = false;
+        $this->save();
+    }
+
+    public function verify2FACode(string $code): bool
+    {
+        $google2fa = new \PragmaRX\Google2FA\Google2FA();
+        return $google2fa->verifyKey($this->two_factor_secret, $code);
+    }
 
     public $timestamps = false;
 
@@ -104,17 +148,36 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
-        'is_blocked', 
+        'is_blocked',
+        'two_factor_secret',
+        'two_factor_enabled',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
     ];
 
     protected $casts = [
         'password' => 'hashed',
-        'is_blocked' => 'boolean'
+        'is_blocked' => 'boolean',
+        'two_factor_enabled' => 'boolean',
     ];
 
+
+    // Override standard reset notification to use our custom MailModel
+    public function sendPasswordResetNotification($token)
+    {
+        $resetUrl = url(route('password.reset', ['token' => $token], false));
+
+        $mailData = [
+            'subject' => 'Reset Your Password - EatZy',
+            'view' => 'emails.reset-password',
+            'resetUrl' => $resetUrl,
+            'name' => $this->name,
+        ];
+
+        \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\MailModel($mailData));
+    }
 }

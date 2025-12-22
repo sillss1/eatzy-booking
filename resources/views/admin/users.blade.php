@@ -5,6 +5,7 @@
 @section('content')
     <div class="container">
         <h1>Manage Users</h1>
+        <a href="{{ route('admin.users.create') }}" class="button" style="margin-bottom: 15px;">+ Create User</a>
 
         <!-- Search & Filter Form -->
         <form method="GET" action="{{ route('admin.users') }}"

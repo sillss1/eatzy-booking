@@ -25,20 +25,20 @@ class RestaurantController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->whereRaw("tsvectors @@ plainto_tsquery('english', ?)", [$search])
-                ->orWhere(function($q2) use ($search) {
-                    $q2->where('name', 'ILIKE', "%{$search}%")
-                        ->orWhere('description', 'ILIKE', "%{$search}%")
-                        ->orWhere('address', 'ILIKE', "%{$search}%");
-                });
+                    ->orWhere(function ($q2) use ($search) {
+                        $q2->where('name', 'ILIKE', "%{$search}%")
+                            ->orWhere('description', 'ILIKE', "%{$search}%")
+                            ->orWhere('address', 'ILIKE', "%{$search}%");
+                    });
             })
-            ->orderByRaw("name = ? DESC", [$search])
-            ->orderByRaw("address = ? DESC", [$search])
-            ->orderByRaw("ts_rank(tsvectors, plainto_tsquery('english', ?)) DESC", [$search]);
+                ->orderByRaw("name = ? DESC", [$search])
+                ->orderByRaw("address = ? DESC", [$search])
+                ->orderByRaw("ts_rank(tsvectors, plainto_tsquery('english', ?)) DESC", [$search]);
         }
         $direction = $request->get('direction', 'asc');
 
         // Favourite filtering
-        
+
         $onlyFavourites = $request->boolean('only_favourites', false);
 
         if ($onlyFavourites && $user) {
@@ -51,7 +51,7 @@ class RestaurantController extends Controller
         }
 
         // Sorting
-        
+
         if ($request->filled('sort')) {
 
             if ($request->sort === 'name') {
@@ -70,9 +70,9 @@ class RestaurantController extends Controller
                 $query->orderBy('created_at', $direction);
             }
 
-            } else {
-                $query->orderBy('name', 'asc');
-            }
+        } else {
+            $query->orderBy('name', 'asc');
+        }
 
         $restaurants = $query->paginate(10);
 
@@ -93,30 +93,29 @@ class RestaurantController extends Controller
 
     public function create()
     {
-        $user = Auth::user();
-        if (!$user || !$user->isOwner()) abort(403);
+        $this->authorize('create', Restaurant::class);
         return view('restaurants.create');
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Restaurant::class);
         $user = Auth::user();
-        if (!$user || !$user->isOwner()) abort(403);
 
         $validated = $request->validate([
-            'name'          => 'required|string|max:255',
-            'email'         => 'required|email|max:255',
-            'phone_number'  => 'nullable|string|max:50',
-            'address'       => 'required|string|max:255',
-            'description'   => 'required|string',
-            'capacity'      => 'required|integer|min:1',
-            'mon_hours'     => 'nullable|string|max:255',
-            'tue_hours'     => 'nullable|string|max:255',
-            'wed_hours'     => 'nullable|string|max:255',
-            'thu_hours'     => 'nullable|string|max:255',
-            'fri_hours'     => 'nullable|string|max:255',
-            'sat_hours'     => 'nullable|string|max:255',
-            'sun_hours'     => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone_number' => 'nullable|string|max:50',
+            'address' => 'required|string|max:255',
+            'description' => 'required|string',
+            'capacity' => 'required|integer|min:1',
+            'mon_hours' => 'nullable|string|max:255',
+            'tue_hours' => 'nullable|string|max:255',
+            'wed_hours' => 'nullable|string|max:255',
+            'thu_hours' => 'nullable|string|max:255',
+            'fri_hours' => 'nullable|string|max:255',
+            'sat_hours' => 'nullable|string|max:255',
+            'sun_hours' => 'nullable|string|max:255',
         ]);
 
         $opening_hours = $this->buildOpeningHoursFromRequest($request);
@@ -137,15 +136,15 @@ class RestaurantController extends Controller
 
 
         Restaurant::create([
-            'owner_id'      => $user->id,
-            'name'          => $validated['name'],
-            'description'   => $validated['description'],
-            'email'         => $validated['email'],
-            'phone_number'  => $validated['phone_number'] ?? null,
-            'address'       => $validated['address'],
-            'capacity'      => $validated['capacity'],
+            'owner_id' => $user->id,
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'email' => $validated['email'],
+            'phone_number' => $validated['phone_number'] ?? null,
+            'address' => $validated['address'],
+            'capacity' => $validated['capacity'],
             'opening_hours' => $opening_hours,
-            'created_at'    => Carbon::now(),
+            'created_at' => Carbon::now(),
         ]);
 
         return redirect()->route('restaurants.index')->with('success', 'Restaurant created successfully!');
@@ -153,37 +152,31 @@ class RestaurantController extends Controller
 
     public function edit($id)
     {
-        $user = Auth::user();
-        if (!$user || !$user->isOwner()) abort(403);
-
         $restaurant = Restaurant::findOrFail($id);
-        if ($restaurant->owner_id !== $user->id) abort(403);
+        $this->authorize('update', $restaurant);
 
         return view('restaurants.edit', compact('restaurant'));
     }
 
     public function update(Request $request, $id)
     {
-        $user = Auth::user();
-        if (!$user || !$user->isOwner()) abort(403);
-
         $restaurant = Restaurant::findOrFail($id);
-        if ($restaurant->owner_id !== $user->id) abort(403);
+        $this->authorize('update', $restaurant);
 
         $validated = $request->validate([
-            'name'          => 'required|string|max:255',
-            'email'         => 'required|email|max:255',
-            'phone_number'  => 'nullable|string|max:50',
-            'address'       => 'required|string|max:255',
-            'description'   => 'required|string',
-            'capacity'      => 'required|integer|min:1',
-            'mon_hours'     => 'nullable|string|max:255',
-            'tue_hours'     => 'nullable|string|max:255',
-            'wed_hours'     => 'nullable|string|max:255',
-            'thu_hours'     => 'nullable|string|max:255',
-            'fri_hours'     => 'nullable|string|max:255',
-            'sat_hours'     => 'nullable|string|max:255',
-            'sun_hours'     => 'nullable|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone_number' => 'nullable|string|max:50',
+            'address' => 'required|string|max:255',
+            'description' => 'required|string',
+            'capacity' => 'required|integer|min:1',
+            'mon_hours' => 'nullable|string|max:255',
+            'tue_hours' => 'nullable|string|max:255',
+            'wed_hours' => 'nullable|string|max:255',
+            'thu_hours' => 'nullable|string|max:255',
+            'fri_hours' => 'nullable|string|max:255',
+            'sat_hours' => 'nullable|string|max:255',
+            'sun_hours' => 'nullable|string|max:255',
         ]);
 
         $opening_hours = $this->buildOpeningHoursFromRequest($request);
@@ -205,14 +198,14 @@ class RestaurantController extends Controller
 
 
         $restaurant->update([
-            'name'          => $validated['name'],
-            'description'   => $validated['description'],
-            'email'         => $validated['email'],
-            'phone_number'  => $validated['phone_number'] ?? null,
-            'address'       => $validated['address'],
-            'capacity'      => $validated['capacity'],
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'email' => $validated['email'],
+            'phone_number' => $validated['phone_number'] ?? null,
+            'address' => $validated['address'],
+            'capacity' => $validated['capacity'],
             'opening_hours' => $opening_hours,
-            'updated_at'    => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
 
         return redirect()->route('restaurants.show', $restaurant->id)->with('success', 'Restaurant updated successfully!');
@@ -220,11 +213,8 @@ class RestaurantController extends Controller
 
     public function destroy($id)
     {
-        $user = Auth::user();
-        if (!$user || !$user->isOwner()) abort(403);
-
         $restaurant = Restaurant::findOrFail($id);
-        if ($restaurant->owner_id !== $user->id) abort(403);
+        $this->authorize('delete', $restaurant);
 
         $restaurant->closed_at = Carbon::now();
         $restaurant->save();
