@@ -25,6 +25,30 @@ two-factor authentication, and full account deletion.
 
 ## Database design
 
+Twelve tables. User roles are modelled as class-table inheritance - `administrator`,
+`customer` and `owner` are specialisations of `user` rather than a role column - so
+role-specific data and foreign keys stay where they belong.
+
+```mermaid
+erDiagram
+    user ||--o| administrator : "specialises to"
+    user ||--o| customer      : "specialises to"
+    user ||--o| owner         : "specialises to"
+
+    owner      ||--o{ restaurant       : owns
+    restaurant ||--o{ restaurant_photo : has
+    restaurant ||--o{ reservation      : receives
+    restaurant ||--o{ review           : receives
+    restaurant ||--o{ favourite        : "is favourited in"
+
+    user ||--o{ reservation : makes
+    user ||--o{ review      : writes
+    user ||--o{ favourite   : saves
+    user ||--o{ reply       : writes
+
+    review ||--o{ reply : "is answered by"
+```
+
 The business rules live in the database rather than only in application code. The schema
 defines **25 trigger and stored-function declarations**, including:
 
